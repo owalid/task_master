@@ -1,4 +1,5 @@
 from client import Client
+from server import Server
 from utils import parse_command
 
 def clean_exit(client):
