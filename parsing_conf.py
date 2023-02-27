@@ -3,8 +3,7 @@ import yaml
 from job import Job
 def parse_conf_file(conf_path):
     conf_file_loaded = None
-    list_of_jobs = []
-    
+    list_of_jobs = []   
     try:
         with open(conf_path, 'r') as conf_file:
             conf_file_loaded = yaml.safe_load(conf_file)
@@ -19,19 +18,15 @@ def parse_conf_file(conf_path):
             print("The Yaml file should start with \"programs\"")
             return False       
         for prg, values in config.items():
-            print("\n ==== program_name : " + prg + "====\n")
             dict_job = {'name': None, 'cmd' : None, 'numprocs':None, 'umask':None, 'workingdir':None, 'autostart':None,
             'autorestart':None, 'exitcodes':None, 'startretries':None, 'starttime':None, 'stopsignal':None,
             'stoptime':None, 'stdout':None, 'stderr':None, 'env':None }
             dict_job['name'] = prg
             for key, value in values.items() : 
                 if key not in allowed_entries:
+                    print(key, " is not an allowed key.")
                     return False
                 dict_job[key] = value
-                print(key)
-                print ("values :")
-                print(value)
-                print("\n")
             if dict_job['cmd'] == None or dict_job['name'] == None:
                 print("You should at least give a name and a command to execute.")
                 return False
