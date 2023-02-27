@@ -28,3 +28,23 @@ class Job:
             self.env = {}
         else:
             self.env = env
+    
+    def print_conf(self):
+        print("Name : "  + self.name)
+        print("Command : " + self.cmd)        
+        print("Number of proc " + str(self.numprocs))
+        print("Umask : " + str(self.umask))
+        print("Working Directory : " + self.workingdir)
+        print("Autostart : " + str(self.autostart))
+        print("Autorestart : " + str(self.autorestart))
+        print("Exit codes : " + str(self.exitcodes))
+        print("Start retries : " + str(self.startretries))
+        print("Start time : " + str(self.starttime))
+        print("Stop signal : " + self.stopsignal)
+        print("Stop time : " + str(self.stoptime))
+        print("stdout : " + self.stdout)
+        print("stderr : " + self.stderr)
+        print("env : ")
+        for key, value in self.env.items():
+            print(" ",key , ": ", value)
+            
