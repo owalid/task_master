@@ -10,6 +10,6 @@ def parse_command(input):
     arguments = input_split[1:]
 
     if input not in ['status', 'restart', 'stop', 'start']:
-        return False
+        return False, False
     
     return (input, arguments)
