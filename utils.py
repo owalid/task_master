@@ -3,7 +3,7 @@ def parse_command(input):
     '''
     Parse the command line input
     return False if the input is not valid
-    return the input and arguments if it is valid
+    return tuple of input (str) and arguments (array) otherwise
     '''
     input_split = input.split(' ')
     input = input_split[0]
@@ -12,4 +12,4 @@ def parse_command(input):
     if input not in ['status', 'restart', 'stop', 'start']:
         return False
     
-    return input, arguments
+    return (input, arguments)
