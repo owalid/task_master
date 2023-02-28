@@ -6,9 +6,7 @@ from colorama import Fore, Style
 class Job:
     """Job is a class that contains all the required and optional options to do a job inside taskmaster's main program."""
 
-    state=PROCESS_STATUS.NOTSTARTED.value
-    dateOfLastStatusChange=datetime.now().ctime()
-    lastExitCode = 0
+    
 
     def __init__(self, name, cmd, numprocs = 1, umask = 18, workingdir = '/tmp', autostart = True,
     autorestart = RESTART_VALUES.UNEXPECTED.value, exitcodes = 0, startretries = 3, starttime = 5, stopsignal = STOP_SIGNAL.TERM.value,
@@ -43,6 +41,9 @@ class Job:
             self.env = {}
         else:
             self.env = env
+        self.state=PROCESS_STATUS.NOTSTARTED.value
+        self.dateOfLastStatusChange=datetime.now().ctime()
+        self.lastExitCode = 0
     
     def print_conf(self):
         print("Name : "  + self.name)
