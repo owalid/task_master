@@ -1,8 +1,13 @@
 from ParsingEnum import RESTART_VALUES
 from ParsingEnum import STOP_SIGNAL
-
+from ParsingEnum import PROCESS_STATUS
+from datetime import datetime
+from colorama import Fore, Style
 class Job:
     """Job is a class that contains all the required and optional options to do a job inside taskmaster's main program."""
+
+    
+
     def __init__(self, name, cmd, numprocs = 1, umask = 18, workingdir = '/tmp', autostart = True,
     autorestart = RESTART_VALUES.UNEXPECTED.value, exitcodes = 0, startretries = 3, starttime = 5, stopsignal = STOP_SIGNAL.TERM.value,
     stoptime = 10, redirectstdout=False, stdout=None, redirectstderr=False, stderr=None, env=None):
@@ -36,6 +41,9 @@ class Job:
             self.env = {}
         else:
             self.env = env
+        self.state=PROCESS_STATUS.NOTSTARTED.value
+        self.dateOfLastStatusChange=datetime.now().ctime()
+        self.lastExitCode = 0
     
     def print_conf(self):
         print("Name : "  + self.name)
@@ -58,8 +66,18 @@ class Job:
         for key, value in self.env.items():
             print(" ",key , ": ", value)
     
-    def status(self):
-        print(f"Status of {self.name}")
+
+    def setStatus(self, newStatus):
+        if newStatus not in PROCESS_STATUS:
+            raise TypeError("The status could'nt be changed. See ParsingEnum.py/PROCESS_STATUS for available statuses.")
+        self.status = newStatus
+        self.dateOfLastStatusChange = datetime.now().ctime()
+
+    def getStatus(self):
+        if self.status != PROCESS_STATUS.EXCITED.value:
+            print(f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.status}{Style.RESET_ALL} since {Style.BRIGHT}{self.dateOfLastStatusChange}{Style.RESET_ALL}.")
+        else:
+            print(f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.status}{Style.RESET_ALL} with code {self.lastExitCode} since {Style.BRIGHT}{self.dateOfLastStatusChange}{Style.RESET_ALL}.")
 
     def start(self):
         print(f"Start of {self.name}")

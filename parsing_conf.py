@@ -34,7 +34,4 @@ def parse_conf_file(conf_path):
                     return False
                 setattr(current_job, key, value)
             list_of_jobs.append(current_job)
-    # to test
-    for job in list_of_jobs:
-        job.print_conf()
     return list_of_jobs

@@ -45,3 +45,13 @@ class ALLOWED_ENTRIES(BaseEnum):
     REDIRECTSTDERR='redirectstderr'
     STDERR='stderr'
     ENV='env'
+
+class PROCESS_STATUS(BaseEnum):
+    NOTSTARTED="Not started"
+    STARTED="Started"
+    RUNNING="Running"
+    RESTARTED="Restarted"
+    STOPPED="Stopped"
+    EXCITED="Excited"
+    UNKNOWN="Unknown"
+    
