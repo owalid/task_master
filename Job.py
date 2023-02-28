@@ -1,19 +1,10 @@
-<<<<<<< HEAD
-from ParsingEnum import RESTART_VALUES
-from ParsingEnum import STOP_SIGNAL
-from ParsingEnum import PROCESS_STATUS
 from datetime import datetime
 from colorama import Fore, Style
-=======
-from ParsingEnum import RESTART_VALUES, ALLOWED_ENTRIES, STOP_SIGNAL
+from ParsingEnum import RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS
 import shlex, subprocess
-import os
 
->>>>>>> e5532b0 (feat: add job start)
 class Job:
     """Job is a class that contains all the required and optional options to do a job inside taskmaster's main program."""
-
-    
 
     def __init__(self, name, cmd, numprocs = 1, umask = 18, workingdir = '/tmp', autostart = True,
     autorestart = RESTART_VALUES.UNEXPECTED.value, exitcodes = 0, startretries = 3, starttime = 5, stopsignal = STOP_SIGNAL.TERM.value,
@@ -99,11 +90,11 @@ class Job:
                         cwd=self.workingdir,
                         umask=self.umask
         )
-        print(f"Start of {self.name}")
+        self.setStatus(PROCESS_STATUS.RUNNING.value)
 
     def stop(self):
         print(f"Stop of {self.name}")
 
-    def restart(self):
+    def restart(self):  
         print(f"Restart of {self.name}")
 
