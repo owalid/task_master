@@ -50,4 +50,15 @@ class Job:
         print("env : ")
         for key, value in self.env.items():
             print(" ",key , ": ", value)
-            
+    
+    def status(self):
+        print(f"Status of {self.name}")
+
+    def start(self):
+        print(f"Start of {self.name}")
+
+    def stop(self):
+        print(f"Stop of {self.name}")
+
+    def restart(self):
+        print(f"Restart of {self.name}")
