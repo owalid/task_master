@@ -40,6 +40,8 @@ class ALLOWED_ENTRIES(BaseEnum):
     STARTTIME='starttime'
     STOPSIGNAL='stopsignal'
     STOPTIME='stoptime'
+    REDIRECTSTDOUT='redirectstdout'
     STDOUT='stdout'
+    REDIRECTSTDERR='redirectstderr'
     STDERR='stderr'
     ENV='env'
