@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 from ParsingEnum import RESTART_VALUES
 from ParsingEnum import STOP_SIGNAL
 from ParsingEnum import PROCESS_STATUS
 from datetime import datetime
 from colorama import Fore, Style
+=======
+from ParsingEnum import RESTART_VALUES, ALLOWED_ENTRIES, STOP_SIGNAL
+import shlex, subprocess
+import os
+
+>>>>>>> e5532b0 (feat: add job start)
 class Job:
     """Job is a class that contains all the required and optional options to do a job inside taskmaster's main program."""
 
@@ -24,6 +31,13 @@ class Job:
         self.stopsignal = stopsignal
         self.stoptime = stoptime 
         self.redirectstdout = redirectstdout
+      
+        self.env = {}
+        self.process = None
+        
+        for key, value in env.items():
+            self.env[key] = str(value)
+
         if self.redirectstdout == True and stdout == None:
             self.stdout = '/tmp/' + self.name + '.stdout'
         elif self.redirectstdout == False:
@@ -37,12 +51,9 @@ class Job:
             self.stderr = ''
         else :
             self.stderr = stderr
-        if env == None:
-            self.env = {}
-        else:
-            self.env = env
-        self.state=PROCESS_STATUS.NOTSTARTED.value
-        self.dateOfLastStatusChange=datetime.now().ctime()
+
+        self.state = PROCESS_STATUS.NOTSTARTED.value
+        self.dateOfLastStatusChange = datetime.now().ctime()
         self.lastExitCode = 0
     
     def print_conf(self):
@@ -80,6 +91,14 @@ class Job:
             print(f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.status}{Style.RESET_ALL} with code {self.lastExitCode} since {Style.BRIGHT}{self.dateOfLastStatusChange}{Style.RESET_ALL}.")
 
     def start(self):
+        cmd_split = shlex.split(self.cmd)
+        self.process = subprocess.Popen(cmd_split,
+                        env=dict(self.env),
+                        stdout=open(self.stdout, 'w'),
+                        stderr=open(self.stderr, 'w'),
+                        cwd=self.workingdir,
+                        umask=self.umask
+        )
         print(f"Start of {self.name}")
 
     def stop(self):
@@ -87,3 +106,4 @@ class Job:
 
     def restart(self):
         print(f"Restart of {self.name}")
+

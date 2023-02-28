@@ -19,4 +19,4 @@ if __name__ == "__main__":
 
     # Start the main program
     server = Server(jobs)
-    server.send_command('nginx', 'status')
+    server.send_command('nginx', 'start')

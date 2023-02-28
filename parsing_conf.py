@@ -3,6 +3,17 @@ import yaml
 from Job import Job
 from ParsingEnum import ALLOWED_ENTRIES
 from ParsingEnum import STOP_SIGNAL
+
+def init_default_job(prg, values):
+    have_env_in_conf = ALLOWED_ENTRIES.ENV.value in values.keys()
+    env = values[ALLOWED_ENTRIES.ENV.value] if have_env_in_conf else {}
+    current_job = Job(prg, values[ALLOWED_ENTRIES.CMD.value], env=env)
+    del values[ALLOWED_ENTRIES.CMD.value]
+    if have_env_in_conf:
+        del values[ALLOWED_ENTRIES.ENV.value]
+
+    return (current_job, values)
+
 def parse_conf_file(conf_path):
     conf_file_loaded = None
     list_of_jobs = []   
@@ -17,7 +28,7 @@ def parse_conf_file(conf_path):
             print("The Yaml file should start with \"programs\"")
             return False       
         for prg, values in config.items():
-            current_job = Job(prg, values[ALLOWED_ENTRIES.CMD.value])
+            current_job, values = init_default_job(prg, values)
             for key, value in values.items() : 
                 if key not in ALLOWED_ENTRIES:
                     print(f"\"{key}\" is not an allowed key.")
