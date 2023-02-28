@@ -1,8 +1,11 @@
+from ParsingEnum import RESTART_VALUES
+from ParsingEnum import STOP_SIGNAL
+
 class Job:
-    """Job is a class that contain all the required and optionnal option to do a job inside task_master main program."""
+    """Job is a class that contains all the required and optional options to do a job inside taskmaster's main program."""
     
-    def __init__(self, name, cmd, numprocs = 1, umask = '022', workingdir = '/tmp', autostart = True,
-    autorestart = "unexpected", exitcodes = [0, 1], startretries = 3, starttime = 5, stopsignal = 'TERM',
+    def __init__(self, name, cmd, numprocs = 1, umask = 18, workingdir = '/tmp', autostart = True,
+    autorestart = RESTART_VALUES.UNEXPECTED.value, exitcodes = 0, startretries = 3, starttime = 5, stopsignal = STOP_SIGNAL.TERM.value,
     stoptime = 10, stdout=None, stderr=None, env=None):
         self.name = name
         self.cmd = cmd
