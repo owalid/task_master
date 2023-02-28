@@ -82,15 +82,24 @@ class Job:
             print(f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.status}{Style.RESET_ALL} with code {self.lastExitCode} since {Style.BRIGHT}{self.dateOfLastStatusChange}{Style.RESET_ALL}.")
 
     def start(self):
-        cmd_split = shlex.split(self.cmd)
-        self.process = subprocess.Popen(cmd_split,
-                        env=dict(self.env),
-                        stdout=open(self.stdout, 'w'),
-                        stderr=open(self.stderr, 'w'),
-                        cwd=self.workingdir,
-                        umask=self.umask
-        )
-        self.setStatus(PROCESS_STATUS.RUNNING.value)
+        if self.startretries == 0:
+            cmd_split = shlex.split(self.cmd)
+            try:
+                self.process = subprocess.Popen(cmd_split,
+                                env=dict(self.env),
+                                stdout=open(self.stdout, 'w'),
+                                stderr=open(self.stderr, 'w'),
+                                cwd=self.workingdir,
+                                umask=self.umask
+                )
+                self.setStatus(PROCESS_STATUS.RUNNING.value)
+            except Exception as e:
+                self.setStatus(PROCESS_STATUS.STOPPED.value)
+                self.startretries -= 1
+                self.setStatus(PROCESS_STATUS.RESTARTED.value)
+                self.start()
+        else:
+            self.setStatus(PROCESS_STATUS.EXCITED.value)    
 
     def stop(self):
         print(f"Stop of {self.name}")
