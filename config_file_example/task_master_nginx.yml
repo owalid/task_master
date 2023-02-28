@@ -12,7 +12,9 @@ programs:
     startretries: 3
     starttime: 5
     stoptime: 10
+    redirectstdout: true
     stdout: /tmp/nginx.stdout
+    redirectstderr: false
     stderr: /tmp/nginx.stderr
     env:
       STARTED_BY: taskmaster

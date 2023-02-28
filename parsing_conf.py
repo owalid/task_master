@@ -25,8 +25,12 @@ def parse_conf_file(conf_path):
                 if key == ALLOWED_ENTRIES.STOPSIGNAL.value and value not in STOP_SIGNAL:
                     print(f"{key}: the value {value} is not allowed for this entry. See Help Page.")
                     return False
-                if key == ALLOWED_ENTRIES.UMASK and (value > 511 or value < 0):
+                if key == ALLOWED_ENTRIES.UMASK.value and (value > 511 or value < 0):
                     print(f"{key} should be at least less or equal to 777 and greater than 0.")
+                    return False
+                if key == ALLOWED_ENTRIES.REDIRECTSTDOUT.value and not isinstance(value, bool) \
+                or key == ALLOWED_ENTRIES.REDIRECTSTDERR.value and not isinstance(value, bool):
+                    print(f"{key} should be a boolean not {value}.")
                     return False
                 setattr(current_job, key, value)
             list_of_jobs.append(current_job)
