@@ -30,6 +30,7 @@ class STOP_SIGNAL(BaseEnum):
 
 class ALLOWED_ENTRIES(BaseEnum):
     CMD='cmd'
+    USER='user'
     NUMPROCS='numprocs'
     UMASK='umask'
     WORKINGDIR='workingdir'

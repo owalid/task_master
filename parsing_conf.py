@@ -3,6 +3,7 @@ import yaml
 from Job import Job
 from ParsingEnum import ALLOWED_ENTRIES
 from ParsingEnum import STOP_SIGNAL
+import pwd
 
 def init_default_job(prg, values):
     have_env_in_conf = ALLOWED_ENTRIES.ENV.value in values.keys()
@@ -13,6 +14,15 @@ def init_default_job(prg, values):
         del values[ALLOWED_ENTRIES.ENV.value]
 
     return (current_job, values)
+
+def check_if_user_exists(username):
+    if not isinstance(username, str) or username.lower() == 'root':
+        return False
+    try:
+        pwd.getpwnam(username)
+    except KeyError:
+        return False
+    return True
 
 def parse_conf_file(conf_path):
     conf_file_loaded = None
@@ -43,6 +53,10 @@ def parse_conf_file(conf_path):
                 or key == ALLOWED_ENTRIES.REDIRECTSTDERR.value and not isinstance(value, bool):
                     print(f"{key} should be a boolean not {value}.")
                     return False
+                if key == ALLOWED_ENTRIES.USER.value:
+                    if check_if_user_exists(value) == False:
+                        print(f"The user {value} does'nt exist or is not permitted. Please put a valid user.")
+                        return False
                 setattr(current_job, key, value)
             list_of_jobs.append(current_job)
     return list_of_jobs

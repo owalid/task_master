@@ -6,11 +6,12 @@ import shlex, subprocess
 class Job:
     """Job is a class that contains all the required and optional options to do a job inside taskmaster's main program."""
 
-    def __init__(self, name, cmd, numprocs = 1, umask = 18, workingdir = '/tmp', autostart = True,
+    def __init__(self, name, cmd, user='', numprocs = 1, umask = 18, workingdir = '/tmp', autostart = True,
     autorestart = RESTART_VALUES.UNEXPECTED.value, exitcodes = 0, startretries = 3, starttime = 5, stopsignal = STOP_SIGNAL.TERM.value,
     stoptime = 10, redirectstdout=False, stdout=None, redirectstderr=False, stderr=None, env=None):
         self.name = name
         self.cmd = cmd
+        self.user = user
         self.numprocs = numprocs
         self.umask = umask
         self.workingdir = workingdir
