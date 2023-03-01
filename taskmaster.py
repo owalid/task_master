@@ -2,7 +2,6 @@ import argparse as ap
 from server import Server
 from argparse import RawTextHelpFormatter
 from parsing_conf import parse_conf_file
-from ParsingEnum import PROCESS_STATUS
 
 if __name__ == "__main__":
     parser = ap.ArgumentParser(formatter_class=RawTextHelpFormatter)
@@ -19,4 +18,5 @@ if __name__ == "__main__":
 
     # Start the main program
     server = Server(jobs)
-    server.send_command('nginx', 'status')
+    server.send_command('nginx', 'start')
+    server.send_command('nginx', 'getStatus')
