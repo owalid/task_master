@@ -9,20 +9,20 @@ def check_rights_and_user(jobs):
                 jobWithoutUserField.append(job)
         print(f"{Back.RED}{Style.BRIGHT}[WARNING]{Style.RESET_ALL}{Fore.RED}{Style.BRIGHT} It appears that you lanch Taskmaster as root.{Style.RESET_ALL}")
         if len(jobWithoutUserField) == 0:
-            print(f"{Back.RED}{Style.BRIGHT}[WARNING]{Style.RESET_ALL}{Style.BRIGHT} Currently, there is no job directly impacted by this. But be root with this script can lead to severe security issues.{Style.RESET_ALL}")
+            print(f"{Back.RED}{Style.BRIGHT}[WARNING]{Style.RESET_ALL}{Fore.RED}{Style.BRIGHT} Currently, there is no job directly impacted by this. But be root with this script can lead to severe security issues.{Style.RESET_ALL}")
             while True:
-                choice = input(f"{Fore.RED}{Style.BRIGHT}Are you sure you want to continue ? [Y/Every key to refuse]: {Style.RESET_ALL}")
+                choice = input(f"{Back.RED}{Style.BRIGHT}[WARNING]{Style.RESET_ALL}{Fore.RED}{Style.BRIGHT}{Fore.RED}{Style.BRIGHT} Are you sure you want to continue ? [Y/Every key to refuse]: {Style.RESET_ALL}")
                 if choice.lower() == 'y' or choice.lower() == 'yes':
-                    print(f"{Fore.RED}{Style.BRIGHT}At your own risk.{Style.RESET_ALL}")
+                    print(f"{Back.RED}{Style.BRIGHT}[WARNING]{Style.RESET_ALL}{Fore.RED}{Style.BRIGHT}{Fore.RED}{Style.BRIGHT} At your own risk.{Style.RESET_ALL}")
                     return False
                 else:
                     print(f"{Fore.GREEN}{Style.BRIGHT}The program will exit. Bye.{Style.RESET_ALL}")
                     exit(0)
         elif len(jobWithoutUserField) != 0:
-            print(f"{Back.RED}{Style.BRIGHT}[WARNING]{Style.RESET_ALL}{Fore.RED}{Style.BRIGHT} Currently, the job(s) :{Style.RESET_ALL}")
+            print(f"{Back.RED}{Style.BRIGHT}[WARNING]{Style.RESET_ALL}{Fore.RED}{Style.BRIGHT} Currently, the job(s)...{Style.RESET_ALL}")
             for job in jobWithoutUserField:
-                print(f'{Style.BRIGHT}{job.name}{Style.RESET_ALL}')
-            print(f"{Back.RED}{Style.BRIGHT}[WARNING]{Back.RED}{Style.BRIGHT}Coul'd be impacted by root launch.{Style.RESET_ALL}")
+                print(f'{Style.BRIGHT}\n- {job.name}\n{Style.RESET_ALL}')
+            print(f"{Back.RED}{Style.BRIGHT}[WARNING]{Style.RESET_ALL}{Fore.RED}{Style.BRIGHT} ...coul'd be impacted by root launch.{Style.RESET_ALL}")
             while True:
                 choice = input(f"{Fore.RED}{Style.BRIGHT}Are you sure you want to continue ? [Y/Every key to refuse]: {Style.RESET_ALL}")
                 if choice.lower() == 'y' or choice.lower() == 'yes':
