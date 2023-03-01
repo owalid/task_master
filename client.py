@@ -19,6 +19,7 @@ class Client:
         self.client_socket.connect(SOCK_FILE)
 
     def send(self, data):
+        print(data)
         self.client_socket.send(data.encode())
 
     def receive(self):
