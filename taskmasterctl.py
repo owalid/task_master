@@ -35,7 +35,7 @@ if __name__ == "__main__":
                 client = Client()
             if client.client_socket != None: # If connected send command to server
                 # todo: process arguments according to command and server
-                client.send(cmd_parsed)
+                client.send(f"{cmd_parsed} {arguments}")
                 print(client.receive())
         except KeyboardInterrupt:
             print('')

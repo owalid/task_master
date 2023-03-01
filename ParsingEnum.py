@@ -52,6 +52,12 @@ class ALLOWED_PROGRAM_ENTRIES(BaseEnum):
     STDERR='stderr'
     ENV='env'
 
+class ALLOWED_COMMANDS(BaseEnum):
+    START='start'
+    STATUS='status'
+    STOP='stop'
+    RESTART='restart'
+
 class PROCESS_STATUS(BaseEnum):
     NOTSTARTED="Not started"
     STARTED="Started"

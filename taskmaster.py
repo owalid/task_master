@@ -1,4 +1,5 @@
 import argparse as ap
+import os, sys
 from server import Server
 from argparse import RawTextHelpFormatter
 from parsing_conf import parse_job_conf_file, parse_taskmaster_options_conf_file, parse_event_listener_options_conf_file
@@ -27,11 +28,10 @@ if __name__ == "__main__":
     check_rights_and_user(jobs, taskmaster_options)
     # Start the main program
     server = Server(jobs)
-    server.send_command('nginx', 'start')
-    server.send_command('nginx', 'get_status')
-    server.send_command('nginx', 'stop')
-    server.send_command('nginx', 'get_status')
-    server.send_command('nginx', 'restart')
-    server.send_command('nginx', 'get_status')
-    server.send_command('nginx', 'stop')
-    server.send_command('nginx', 'get_status')
+
+    # deamonize main program
+    # fpid = os.fork()
+    # if fpid != 0:
+    #     exit(0)
+    # server.send_command('nginx', 'start')
+    # server.send_command('nginx', 'status')
