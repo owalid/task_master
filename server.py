@@ -13,6 +13,7 @@ class Server:
             self.jobs = jobs
             self.bind()
             self.listen()
+            # self.accept()
         except ConnectionRefusedError:
             print("Connection refused")
             exit(1)
