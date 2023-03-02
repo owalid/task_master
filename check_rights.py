@@ -41,7 +41,7 @@ def check_rights_and_user(jobs, taskmaster_options):
         for job in jobs:
             job.user = 'root'
     else:
-        currentUsername = os.getlogin()
+        current_username = os.getlogin()
         for job in jobs:
             if job.user == '':
                 job.user = current_username
