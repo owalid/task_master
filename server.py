@@ -13,8 +13,7 @@ class Server:
         self.jobs = jobs
         self.start_all_jobs()
         self.bind()
-        # self.listen()
-        self.accept()
+        self.listen_accept_receive()
         
     
     def bind(self):
@@ -34,12 +33,14 @@ class Server:
                 self.send("Invalid command.")
                 return
             command, job_name = data_splitted[0], data_splitted[1]
-
+            
+            print(f"command: {command}, job_name: {job_name}")
             res = ''
-            if job_name == "all" and data_splitted[0] in ALLOWED_COMMANDS:
+            if job_name == "all" and command in ALLOWED_COMMANDS:
                 for job in self.jobs:
                     res = self.send_command(job.name, command)
                     self.send(res)
+                return
             
             jobs_name = [job.name for job in self.jobs]
             invalid_job_name = job_name not in jobs_name
@@ -53,14 +54,14 @@ class Server:
                 self.send(res)
         return
 
-    def accept(self):
+    def listen_accept_receive(self):
         '''
         Accept a connection. The socket must be bound to an address and listening for connections.
         '''
+        self.server.listen()
+        self.connection, _ = self.server.accept()
         while True:
-            self.server.listen()
-            self.connection, _ = self.server.accept()
-            self.connection.setblocking(False)
+            self.connection.setblocking(True)
             data = self.connection.recv(1024)
             self.parse_data_received(data.decode())
 

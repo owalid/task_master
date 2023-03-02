@@ -8,7 +8,9 @@ def parse_command(input):
     '''
     input_split = input.split(' ')
     input = input_split[0]
-    arguments = input_split[1]
+    arguments = None
+    if len(input_split) > 1:
+        arguments = input_split[1]
 
     if input not in ALLOWED_COMMANDS:
         return (False, False)
