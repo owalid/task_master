@@ -4,7 +4,7 @@ from Job import Job
 from ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS,SUBSCRIPTIONS_CAT, STOP_SIGNAL
 import pwd
 from TaskmasterOptions import TaskmasterOptions
-from EventListenerOptionsOptions import EventListenerOptions
+from EventListenerOptions import EventListenerOptions
 
 def init_default_job(prg, values):
     have_env_in_conf = ALLOWED_PROGRAM_ENTRIES.ENV.value in values.keys()
