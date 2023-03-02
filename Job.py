@@ -70,13 +70,13 @@ class Job:
             print(" ",key , ": ", value)
     
 
-    def setStatus(self, newStatus):
+    def set_status(self, newStatus):
         if newStatus not in PROCESS_STATUS:
             raise TypeError("The status could'nt be changed. See ParsingEnum.py/PROCESS_STATUS for available statuses.")
         self.status = newStatus
         self.dateOfLastStatusChange = datetime.now().ctime()
 
-    def getStatus(self):
+    def get_status(self):
         if self.status != PROCESS_STATUS.EXCITED.value:
             print(f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.status}{Style.RESET_ALL} since {Style.BRIGHT}{self.dateOfLastStatusChange}{Style.RESET_ALL}.")
         else:
@@ -93,19 +93,22 @@ class Job:
                                 cwd=self.workingdir,
                                 umask=self.umask
                 )
-                self.setStatus(PROCESS_STATUS.RUNNING.value)
+                self.set_status(PROCESS_STATUS.RUNNING.value)
             except Exception as e:
                 print(e)
-                self.setStatus(PROCESS_STATUS.STOPPED.value)
+                self.set_status(PROCESS_STATUS.STOPPED.value)
                 self.startretries -= 1
-                self.setStatus(PROCESS_STATUS.RESTARTED.value)
+                self.set_status(PROCESS_STATUS.RESTARTED.value)
                 self.start()
         else:
-            self.setStatus(PROCESS_STATUS.EXCITED.value)    
+            self.set_status(PROCESS_STATUS.EXCITED.value)    
 
     def stop(self):
-        print(f"Stop of {self.name}")
+        self.process.kill()
+        self.set_status(PROCESS_STATUS.STOPPED.value)
 
-    def restart(self):  
-        print(f"Restart of {self.name}")
+    def restart(self):
+        self.stop()
+        self.set_status(PROCESS_STATUS.RESTARTED.value)
+        self.start()
 

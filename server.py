@@ -5,14 +5,21 @@ SOCK_FILE = "/tmp/taskmaster.sock"
 
 class Server:
     def __init__(self, jobs):
-        self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        if os.path.exists(SOCK_FILE):
-            os.remove(SOCK_FILE)
-        self.server_socket = None
-        self.jobs = jobs
-        self.bind()
-        self.listen()
-        # self.accept()
+        try:
+            self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            if os.path.exists(SOCK_FILE):
+                os.remove(SOCK_FILE)
+            self.server_socket = None
+            self.jobs = jobs
+            self.bind()
+            self.listen()
+            # self.accept()
+        except ConnectionRefusedError:
+            print("Connection refused")
+            exit(1)
+        except KeyboardInterrupt:
+            print("Bye")
+            exit(0)
     
     def listen(self):
         '''
@@ -64,6 +71,13 @@ class Server:
             if job.name == job_name:
                 return job
         return None
+    
+    def start_all(self):
+        '''
+        Start all jobs.
+        '''
+        for job in self.jobs:
+            job.start()
     
     def send_command(self, job_name, cmd_name):
         '''
