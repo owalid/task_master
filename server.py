@@ -34,6 +34,7 @@ class Server:
                 return
             command, job_name = data_splitted[0], data_splitted[1]
             
+            #! NEED TO REMOVE ONLY FOR DEBUG / TEST PURPOSE
             print(f"command: {command}, job_name: {job_name}")
             res = ''
             if job_name == "all" and command in ALLOWED_COMMANDS:
