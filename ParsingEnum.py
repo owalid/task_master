@@ -63,3 +63,12 @@ class PROCESS_STATUS(BaseEnum):
     
 class ALLOWED_TM_OPTIONS(BaseEnum):
     ROOTWARN='rootwarn'
+
+class ALLOWED_EL_OPTIONS(BaseEnum):
+    ACTIVATED='activated'
+    OPTIONS='options'
+    SUBSCRIPTIONS='subscriptions'
+
+class SUBSCRIPTIONS_CAT(BaseEnum):
+    PROCESS_STATES='PROCESS_STATES'
+    PROCESS_LOGS='PROCESS_LOGS'

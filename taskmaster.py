@@ -1,7 +1,7 @@
 import argparse as ap
 from server import Server
 from argparse import RawTextHelpFormatter
-from parsing_conf import parse_job_conf_file, parse_taskmaster_options_conf_file
+from parsing_conf import parse_job_conf_file, parse_taskmaster_options_conf_file, parse_event_listener_conf_file
 from check_rights import check_rights_and_user
 import os
 if __name__ == "__main__":
@@ -20,7 +20,10 @@ if __name__ == "__main__":
     if taskmaster_options == False:
         print("Error while loading the configuration file.")
         exit(1)
-    # event_listener = parse_event_listener_conf_file(conf_path)
+    event_listener = parse_event_listener_conf_file(conf_path)
+    if event_listener == False:
+        print("Error while loading the configuration file.")
+        exit(1)
     check_rights_and_user(jobs, taskmaster_options)
     # Start the main program
     server = Server(jobs)

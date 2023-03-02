@@ -1,9 +1,10 @@
 #parsing_conf.py
 import yaml
 from Job import Job
-from ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, STOP_SIGNAL
+from ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS,SUBSCRIPTIONS_CAT, STOP_SIGNAL
 import pwd
 from TaskmasterOptions import TaskmasterOptions
+from EventListener import EventListener
 
 def init_default_job(prg, values):
     have_env_in_conf = ALLOWED_PROGRAM_ENTRIES.ENV.value in values.keys()
@@ -23,6 +24,36 @@ def check_if_user_exists(username):
     except KeyError:
         return False
     return True
+
+def parse_event_listener_conf_file(conf_path):
+    conf_file_loaded = None
+    event_listener =  EventListener() 
+    try:
+        with open(conf_path, 'r') as conf_file:
+            conf_file_loaded = yaml.safe_load(conf_file)
+    except:
+        print("The configuration file at " + conf_path +  " could not be loaded.")
+        return False
+    for name_cat, config in conf_file_loaded.items():
+        if name_cat not in ALLOWED_CATEGORIES:
+            print(f"{name_cat} is not an allowed category for the configuration file.")
+            return False
+        if name_cat != ALLOWED_CATEGORIES.EVENTLISTENER.value:
+            continue
+        for option, value in config.items():
+            if option not in ALLOWED_EL_OPTIONS:
+                print(f"{option} is not an allowed option for {name_cat}.")
+                return False
+            if option == ALLOWED_EL_OPTIONS.ACTIVATED.value and not isinstance(value, bool):
+                print(f"{option} should be a boolean not {value}")
+                return False
+            if option == ALLOWED_EL_OPTIONS.SUBSCRIPTIONS.value:
+                for val in value:
+                    if val not in SUBSCRIPTIONS_CAT:
+                        print(f"{option} can't be {value}.")
+                        return False
+            setattr(event_listener, option, value)
+    return event_listener
 
 def parse_taskmaster_options_conf_file(conf_path):
     conf_file_loaded = None
