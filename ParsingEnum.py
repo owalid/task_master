@@ -14,6 +14,11 @@ class BaseEnum(Enum, metaclass=MetaEnum):
     pass
 
 
+class ALLOWED_CATEGORIES(BaseEnum):
+    PROGRAMS='programs'
+    TASKMASTEROPTIONS='taskmasteroptions'
+    EVENTLISTENER='eventlistener'
+
 class RESTART_VALUES(BaseEnum):
     UNEXPECTED='unexpected'
     TRUE='true'
@@ -28,7 +33,7 @@ class STOP_SIGNAL(BaseEnum):
     USR1='USR1'
     USR2='USR2'
 
-class ALLOWED_ENTRIES(BaseEnum):
+class ALLOWED_PROGRAM_ENTRIES(BaseEnum):
     CMD='cmd'
     USER='user'
     NUMPROCS='numprocs'
@@ -56,3 +61,14 @@ class PROCESS_STATUS(BaseEnum):
     EXCITED="Excited"
     UNKNOWN="Unknown"
     
+class ALLOWED_TM_OPTIONS(BaseEnum):
+    ROOTWARN='rootwarn'
+
+class ALLOWED_EL_OPTIONS(BaseEnum):
+    ACTIVATED='activated'
+    OPTIONS='options'
+    SUBSCRIPTIONS='subscriptions'
+
+class SUBSCRIPTIONS_CAT(BaseEnum):
+    PROCESS_STATES='PROCESS_STATES'
+    PROCESS_LOGS='PROCESS_LOGS'
