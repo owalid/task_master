@@ -20,3 +20,10 @@ programs:
     env:
       STARTED_BY: taskmaster
       ANSWER: 42
+taskmasteroptions:
+  rootwarn: false
+
+eventlistener:
+  activated: true
+  options: "-m toto@toto.com"
+  subscriptions: PROCESS_STATE, PROCESS_LOG
