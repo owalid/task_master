@@ -19,6 +19,7 @@ class Job:
         self.autorestart = autorestart
         self.exitcodes  = exitcodes
         self.startretries = startretries
+        self.original_startretries = startretries
         self.starttime = starttime
         self.stopsignal = stopsignal
         self.stoptime = stoptime 
@@ -101,13 +102,18 @@ class Job:
                 self.set_status(PROCESS_STATUS.RESTARTED.value)
                 self.start()
         else:
-            self.set_status(PROCESS_STATUS.EXCITED.value)    
+            self.set_status(PROCESS_STATUS.EXCITED.value)
+        self.startretries  = self.original_startretries          
+        return self.status()
+
 
     def stop(self):
         self.process.kill()
         self.set_status(PROCESS_STATUS.STOPPED.value)
+        return self.status()
 
     def restart(self):
         self.stop()
         self.set_status(PROCESS_STATUS.RESTARTED.value)
         self.start()
+        return self.status()
