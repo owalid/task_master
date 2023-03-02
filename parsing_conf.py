@@ -25,9 +25,9 @@ def check_if_user_exists(username):
         return False
     return True
 
-def parse_event_listener_conf_file(conf_path):
+def parse_event_listener_options_conf_file(conf_path):
     conf_file_loaded = None
-    event_listener =  EventListenerOptions() 
+    event_listener_options =  EventListenerOptions() 
     try:
         with open(conf_path, 'r') as conf_file:
             conf_file_loaded = yaml.safe_load(conf_file)
@@ -52,8 +52,8 @@ def parse_event_listener_conf_file(conf_path):
                     if val not in SUBSCRIPTIONS_CAT:
                         print(f"{option} can't be {value}.")
                         return False
-            setattr(event_listener, option, value)
-    return event_listener
+            setattr(event_listener_options, option, value)
+    return event_listener_options
 
 def parse_taskmaster_options_conf_file(conf_path):
     conf_file_loaded = None
