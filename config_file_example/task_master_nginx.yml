@@ -29,3 +29,4 @@ eventlistener:
   subscriptions: 
     - PROCESS_STATES
     - PROCESS_LOGS
+    - PRO

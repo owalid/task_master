@@ -47,11 +47,9 @@ def parse_event_listener_options_conf_file(conf_path):
             if option == ALLOWED_EL_OPTIONS.ACTIVATED.value and not isinstance(value, bool):
                 print(f"{option} should be a boolean not {value}")
                 return False
-            if option == ALLOWED_EL_OPTIONS.SUBSCRIPTIONS.value:
-                for val in value:
-                    if val not in SUBSCRIPTIONS_CAT:
-                        print(f"{option} can't be {value}.")
-                        return False
+            if option == ALLOWED_EL_OPTIONS.SUBSCRIPTIONS.value and len([val for val in value if val not in SUBSCRIPTIONS_CAT]):
+                print(f"{option} can't be {value}.")
+                return False
             setattr(event_listener_options, option, value)
     return event_listener_options
 
