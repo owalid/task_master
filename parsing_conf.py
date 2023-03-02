@@ -4,7 +4,7 @@ from Job import Job
 from ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS,SUBSCRIPTIONS_CAT, STOP_SIGNAL
 import pwd
 from TaskmasterOptions import TaskmasterOptions
-from EventListener import EventListener
+from EventListenerOptionsOptions import EventListenerOptions
 
 def init_default_job(prg, values):
     have_env_in_conf = ALLOWED_PROGRAM_ENTRIES.ENV.value in values.keys()
@@ -27,7 +27,7 @@ def check_if_user_exists(username):
 
 def parse_event_listener_conf_file(conf_path):
     conf_file_loaded = None
-    event_listener =  EventListener() 
+    event_listener =  EventListenerOptions() 
     try:
         with open(conf_path, 'r') as conf_file:
             conf_file_loaded = yaml.safe_load(conf_file)
