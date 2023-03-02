@@ -45,8 +45,8 @@ class Job:
             self.stderr = stderr
 
         self.state = PROCESS_STATUS.NOTSTARTED.value
-        self.dateOfLastStatusChange = datetime.now().ctime()
-        self.lastExitCode = 0
+        self.date_of_last_status_change = datetime.now().ctime()
+        self.last_exit_code = 0
     
     def print_conf(self):
         print("Name : "  + self.name)
@@ -70,17 +70,17 @@ class Job:
             print(" ",key , ": ", value)
     
 
-    def set_status(self, newStatus):
-        if newStatus not in PROCESS_STATUS:
+    def set_status(self, new_status):
+        if new_status not in PROCESS_STATUS:
             raise TypeError("The status could'nt be changed. See ParsingEnum.py/PROCESS_STATUS for available statuses.")
-        self.status = newStatus
-        self.dateOfLastStatusChange = datetime.now().ctime()
+        self.status = new_status
+        self.date_of_last_status_change = datetime.now().ctime()
 
     def get_status(self):
         if self.status != PROCESS_STATUS.EXCITED.value:
-            print(f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.status}{Style.RESET_ALL} since {Style.BRIGHT}{self.dateOfLastStatusChange}{Style.RESET_ALL}.")
+            print(f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.status}{Style.RESET_ALL} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.")
         else:
-            print(f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.status}{Style.RESET_ALL} with code {self.lastExitCode} since {Style.BRIGHT}{self.dateOfLastStatusChange}{Style.RESET_ALL}.")
+            print(f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.status}{Style.RESET_ALL} with code {self.last_exit_code} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.")
 
     def start(self):
         if self.startretries != -1:

@@ -44,5 +44,4 @@ def check_rights_and_user(jobs, taskmaster_options):
         currentUsername = os.getlogin()
         for job in jobs:
             if job.user == '':
-                job.user = currentUsername
-
+                job.user = current_username
