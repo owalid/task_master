@@ -19,6 +19,7 @@ class Job:
         self.autorestart = autorestart
         self.exitcodes  = exitcodes
         self.startretries = startretries
+        self.original_startretries = startretries
         self.starttime = starttime
         self.stopsignal = stopsignal
         self.stoptime = stoptime 
@@ -73,14 +74,14 @@ class Job:
     def set_status(self, new_status):
         if new_status not in PROCESS_STATUS:
             raise TypeError("The status could'nt be changed. See ParsingEnum.py/PROCESS_STATUS for available statuses.")
-        self.status = new_status
+        self.state = new_status
         self.date_of_last_status_change = datetime.now().ctime()
 
-    def get_status(self):
-        if self.status != PROCESS_STATUS.EXCITED.value:
-            print(f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.status}{Style.RESET_ALL} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.")
+    def status(self):
+        if self.state != PROCESS_STATUS.EXCITED.value:
+            return f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}."
         else:
-            print(f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.status}{Style.RESET_ALL} with code {self.last_exit_code} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.")
+            return f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} with code {self.lastExitCode} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}."
 
     def start(self):
         if self.startretries != -1:
@@ -101,14 +102,18 @@ class Job:
                 self.set_status(PROCESS_STATUS.RESTARTED.value)
                 self.start()
         else:
-            self.set_status(PROCESS_STATUS.EXCITED.value)    
+            self.set_status(PROCESS_STATUS.EXCITED.value)
+        self.startretries  = self.original_startretries          
+        return self.status()
+
 
     def stop(self):
         self.process.kill()
         self.set_status(PROCESS_STATUS.STOPPED.value)
+        return self.status()
 
     def restart(self):
         self.stop()
         self.set_status(PROCESS_STATUS.RESTARTED.value)
         self.start()
-
+        return self.status()

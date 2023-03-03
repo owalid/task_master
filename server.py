@@ -1,31 +1,20 @@
 import socket
 import os
+from ParsingEnum import ALLOWED_COMMANDS
 
 SOCK_FILE = "/tmp/taskmaster.sock"
 
 class Server:
     def __init__(self, jobs):
-        try:
-            self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            if os.path.exists(SOCK_FILE):
-                os.remove(SOCK_FILE)
-            self.server_socket = None
-            self.jobs = jobs
-            self.bind()
-            self.listen()
-            # self.accept()
-        except ConnectionRefusedError:
-            print("Connection refused")
-            exit(1)
-        except KeyboardInterrupt:
-            print("Bye")
-            exit(0)
-    
-    def listen(self):
-        '''
-        Enable a server to accept connections.
-        '''
-        self.server.listen()
+        self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        if os.path.exists(SOCK_FILE):
+            os.remove(SOCK_FILE)
+        self.connection = None
+        self.jobs = jobs
+        self.start_all_jobs()
+        self.bind()
+        self.listen_accept_receive()
+        
     
     def bind(self):
         '''
@@ -33,32 +22,63 @@ class Server:
         '''
         self.server.bind(SOCK_FILE)
 
-    def accept(self):
+    def parse_data_received(self, data):
+        '''
+        Parse the data received from the socket.
+        '''
+        if data:
+
+            data_splitted = data.split(" ")
+            if len(data_splitted) < 2:
+                self.send("Invalid command.")
+                return
+            command, job_name = data_splitted[0], data_splitted[1]
+            
+            #! NEED TO REMOVE ONLY FOR DEBUG / TEST PURPOSE
+            print(f"command: {command}, job_name: {job_name}")
+            res = ''
+            if job_name == "all" and command in ALLOWED_COMMANDS:
+                for job in self.jobs:
+                    res = self.send_command(job.name, command)
+                    self.send(res)
+                return
+            
+            jobs_name = [job.name for job in self.jobs]
+            invalid_job_name = job_name not in jobs_name
+            invalid_command = command not in ALLOWED_COMMANDS
+            if invalid_job_name:
+                self.send("Invalid job name.")
+            elif invalid_command:
+                self.send("Invalid command.")
+            else:
+                res = self.send_command(job_name, command)
+                self.send(res)
+        return
+
+    def listen_accept_receive(self):
         '''
         Accept a connection. The socket must be bound to an address and listening for connections.
         '''
-        self.server_socket, _ = self.server.accept()
-        self.server_socket.setblocking(False)
+        self.server.listen()
+        self.connection, _ = self.server.accept()
+        while True:
+            self.connection.setblocking(True)
+            data = self.connection.recv(1024)
+            self.parse_data_received(data.decode())
+
 
     def close(self):
         '''
         Close the socket.
         '''
-        if self.server_socket != None:
-            self.server_socket.close()
-
-    def receive(self):
-        '''
-        Receive data from the socket.
-        '''
-        data = self.server_socket.recv(1024)
-        return data.decode()
+        if self.connection != None:
+            self.connection.close()
 
     def send(self, data):
         '''
         Send data to the socket.
         '''
-        self.server_socket.send(data.encode())
+        self.connection.send(data.encode())
     
     # Job management
     
@@ -72,7 +92,7 @@ class Server:
                 return job
         return None
     
-    def start_all(self):
+    def start_all_jobs(self):
         '''
         Start all jobs.
         '''
@@ -84,6 +104,7 @@ class Server:
         Send an command to the job.
         '''
         job = self.get_job_from_name(self.jobs, job_name)
+
         if job == None:
             return "Job not found."
         if hasattr(job, cmd_name) and callable(job_function := getattr(job, cmd_name)):

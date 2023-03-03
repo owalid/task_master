@@ -31,11 +31,15 @@ if __name__ == "__main__":
             if cmd_parsed == False: # invalid command
                 print(f"*** Unknown syntax: {cmd}")
                 continue
+            elif not arguments:
+                print("Missing arguments.")
+                print("<command> <job_name or 'all'>")
+                continue
             elif client.client_socket == None: # Try to connect to server if not connected
                 client = Client()
             if client.client_socket != None: # If connected send command to server
                 # todo: process arguments according to command and server
-                client.send(cmd_parsed)
+                client.send(f"{cmd_parsed} {arguments}")
                 print(client.receive())
         except KeyboardInterrupt:
             print('')
