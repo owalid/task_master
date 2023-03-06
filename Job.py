@@ -1,7 +1,7 @@
 from datetime import datetime
 from colorama import Fore, Style
-from ParsingEnum import RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS, PROCESS_STATES
-import shlex, subprocess, uuid
+from ParsingEnum import RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS
+import shlex, subprocess, uuid, base64
 
 class Job:
     """Job is a class that contains all the required and optional options to do a job inside taskmaster's main program."""
@@ -46,6 +46,7 @@ class Job:
             self.stderr = stderr
 
         self.state = PROCESS_STATUS.NOTSTARTED.value
+        self.old_state = PROCESS_STATUS.UNKNOWN.value
         self.date_of_last_status_change = datetime.now().ctime()
         self.last_exit_code = 0
     
@@ -74,8 +75,10 @@ class Job:
     def set_status(self, new_status):
         if new_status not in PROCESS_STATUS:
             raise TypeError("The status could'nt be changed. See ParsingEnum.py/PROCESS_STATUS for available statuses.")
+        self.old_state = self.state
         self.state = new_status
         self.date_of_last_status_change = datetime.now().ctime()
+        self.make_log()
 
     def status(self):
         if self.state != PROCESS_STATUS.EXCITED.value:
@@ -83,35 +86,25 @@ class Job:
         else:
             return f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} with code {self.lastExitCode} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}."
 
-    def process_state_from_status(status):
-        match status:
-            case PROCESS_STATUS.NOTSTARTED.value:
-                return PROCESS_STATES.PROCESS_STATE_NOT_STARTED.value
-            case PROCESS_STATUS.STARTED.value:
-                return PROCESS_STATES.PROCESS_STATE_NOT_STARTED.value
-            case PROCESS_STATUS.RUNNING.value:
-                return PROCESS_STATES.PROCESS_STATE_RUNNING.value
-            case PROCESS_STATUS.RESTARTED.value:
-                return PROCESS_STATES.PROCESS_STATE_RESTARTED.value
-            case PROCESS_STATUS.STOPPED.value:
-                return PROCESS_STATES.PROCESS_STATE_STOPPED.value
-            case PROCESS_STATUS.EXCITED.value:
-                return PROCESS_STATES.PROCESS_STATE_EXCITED.value
-            case _:
-                return PROCESS_STATES.PROCESS_STATE_UNKNOWN.value
-
-    def make_log(self, old_status, new_status):
+    def make_log(self):
         log = "server:Taskmaster|"
         log += "eventid:" + str(uuid.uuid1()) + "|"
-        log += "date:" + 
+        log += "date:" + base64.b64encode(self.date_of_last_status_change.encode()).decode() + "|"
         log += "processname:" + self.name + "|"
         log += "processcmd:" + self.cmd + "|"
         log += "eventtype:PROCESS_STATES|"
-        log += "fromstate:" + self.process_state_from_status(old_status) + "|"
-        log += "tostate:" + self.process_state_from_status(new_status) + "|"
-        log += "lastexitcode:" + self.last_exit_code + "|"
-
-
+        log += "fromstate:" + self.old_state.upper() + "|"
+        log += "tostate:" + self.state.upper() + "|"
+        log += "lastexitcode:" + str(self.last_exit_code)
+        try:
+            with open("/tmp/.taskmaster_raw_logs", "a") as file_log:
+                file_log.write(log)
+            file_log.close()
+            with open("./logs/taskmaster_raw_logs.log", "a") as raw_log:
+                raw_log.write(log)
+            raw_log.close()
+        except:
+            print("The logs could'nt be wrote.")
 
     def start(self):
         if self.startretries != -1:

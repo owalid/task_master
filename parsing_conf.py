@@ -1,10 +1,10 @@
 #parsing_conf.py
 import yaml
 from Job import Job
-from ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS,SUBSCRIPTIONS_CAT, STOP_SIGNAL
+from ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS, STOP_SIGNAL
 import pwd
 from TaskmasterOptions import TaskmasterOptions
-from EventListenerOptions import EventListenerOptions
+from EventManagerOptions import EventManagerOptions
 import re
 
 def init_default_job(prg, values):
@@ -28,9 +28,9 @@ def check_if_user_exists(username):
 
 def parse_event_listener_options_conf_file(conf_path):
     conf_file_loaded = None
-    event_listener_options =  EventListenerOptions()
+    event_listener_options =  EventManagerOptions()
     #regex to check if value is a mail.
-    regex=r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    regex=r'^[A-Za-z0-9.]+@gmail.com$'
     try:
         with open(conf_path, 'r') as conf_file:
             conf_file_loaded = yaml.safe_load(conf_file)
@@ -51,7 +51,7 @@ def parse_event_listener_options_conf_file(conf_path):
                 print(f"{option} should be a boolean not {value}")
                 return False
             if option == ALLOWED_EL_OPTIONS.MAIL.value and re.fullmatch(regex, value):
-                print(f"{value} is not a mail.")
+                print(f"{value} is not a gmail account !")
                 return False
             setattr(event_listener_options, option, value)
     return event_listener_options

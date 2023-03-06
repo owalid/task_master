@@ -1,22 +1,34 @@
 import socket
-import os
+import os, subprocess
 from ParsingEnum import ALLOWED_COMMANDS
 
 SOCK_FILE = "/tmp/taskmaster.sock"
 
 class Server:
-    def __init__(self, jobs, event_listener_options):
+    def __init__(self, jobs, event_manager_options):
         self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         if os.path.exists(SOCK_FILE):
             os.remove(SOCK_FILE)
         self.connection = None
         self.jobs = jobs
-        self.event_listener_options = event_listener_options
+        self.event_manager_options = event_manager_options
+        self.event_manager_process = None
         self.start_all_jobs()
+        self.start_event_manager()
         self.bind()
         self.listen_accept_receive()
-        
-    
+
+    def start_event_manager(self):
+        '''
+        Start the event manager if option sets to true.
+        '''
+        try:
+            if self.event_manager_options.activated == True:
+                self.event_manager_process = subprocess.Popen \
+                    (["python3", "event_manager/eventmanager.py", "-m", self.event_manager_options.mail], \
+                    stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except:
+            print("[ERROR] The event manager could not be launched.")
     def bind(self):
         '''
         Bind the socket to address.
