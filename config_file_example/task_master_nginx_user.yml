@@ -25,4 +25,4 @@ taskmasteroptions:
 
 eventlistener:
   activated: true
-  mail: "toto@gmail.com"
+  mail: "taskmaster.eventmanager@gmail.com"

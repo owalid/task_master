@@ -50,7 +50,7 @@ def parse_event_listener_options_conf_file(conf_path):
             if option == ALLOWED_EL_OPTIONS.ACTIVATED.value and not isinstance(value, bool):
                 print(f"{option} should be a boolean not {value}")
                 return False
-            if option == ALLOWED_EL_OPTIONS.MAIL.value and re.fullmatch(regex, value):
+            if option == ALLOWED_EL_OPTIONS.MAIL.value and re.fullmatch(regex, value) == False:
                 print(f"{value} is not a gmail account !")
                 return False
             setattr(event_listener_options, option, value)

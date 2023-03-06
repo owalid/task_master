@@ -24,9 +24,23 @@ class Server:
         '''
         try:
             if self.event_manager_options.activated == True:
+                pwsd=""
+                if os.path.exists("./event_manager/.env") == False:
+                    while 1:
+                        print("Configuration of email sending")
+                        print("First you need to enable 2FA on your google account")
+                        input("Press any key when it is OK")
+                        print("Then you need to generate an app password (this will not be your real password).")
+                        print("https://support.google.com/accounts/answer/185833")
+                        pwsd = input("When it's ok, copy and paste the password here : ")
+                        break
+                    with open("./event_manager/.env", "a") as f:
+                        f.writelines("USERMAIL=" + self.event_manager_options.mail + "\n")
+                        f.writelines("PASSWORD=" + pwsd + "\n")
+                    f.close()
                 self.event_manager_process = subprocess.Popen \
-                    (["python3", "event_manager/eventmanager.py", "-m", self.event_manager_options.mail], \
-                    stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        (["python3", "event_manager/eventmanager.py"],  \
+                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except:
             print("[ERROR] The event manager could not be launched.")
     def bind(self):
