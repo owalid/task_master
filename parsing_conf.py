@@ -5,6 +5,7 @@ from ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_
 import pwd
 from TaskmasterOptions import TaskmasterOptions
 from EventListenerOptions import EventListenerOptions
+import re
 
 def init_default_job(prg, values):
     have_env_in_conf = ALLOWED_PROGRAM_ENTRIES.ENV.value in values.keys()
@@ -27,7 +28,9 @@ def check_if_user_exists(username):
 
 def parse_event_listener_options_conf_file(conf_path):
     conf_file_loaded = None
-    event_listener_options =  EventListenerOptions() 
+    event_listener_options =  EventListenerOptions()
+    #regex to check if value is a mail.
+    regex=r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
     try:
         with open(conf_path, 'r') as conf_file:
             conf_file_loaded = yaml.safe_load(conf_file)
@@ -47,8 +50,8 @@ def parse_event_listener_options_conf_file(conf_path):
             if option == ALLOWED_EL_OPTIONS.ACTIVATED.value and not isinstance(value, bool):
                 print(f"{option} should be a boolean not {value}")
                 return False
-            if option == ALLOWED_EL_OPTIONS.SUBSCRIPTIONS.value and len([val for val in value if val not in SUBSCRIPTIONS_CAT]):
-                print(f"{option} can't be {value}.")
+            if option == ALLOWED_EL_OPTIONS.MAIL.value and re.fullmatch(regex, value):
+                print(f"{value} is not a mail.")
                 return False
             setattr(event_listener_options, option, value)
     return event_listener_options

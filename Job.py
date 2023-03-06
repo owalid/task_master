@@ -1,7 +1,7 @@
 from datetime import datetime
 from colorama import Fore, Style
-from ParsingEnum import RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS
-import shlex, subprocess
+from ParsingEnum import RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS, PROCESS_STATES
+import shlex, subprocess, uuid
 
 class Job:
     """Job is a class that contains all the required and optional options to do a job inside taskmaster's main program."""
@@ -82,6 +82,36 @@ class Job:
             return f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}."
         else:
             return f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} with code {self.lastExitCode} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}."
+
+    def process_state_from_status(status):
+        match status:
+            case PROCESS_STATUS.NOTSTARTED.value:
+                return PROCESS_STATES.PROCESS_STATE_NOT_STARTED.value
+            case PROCESS_STATUS.STARTED.value:
+                return PROCESS_STATES.PROCESS_STATE_NOT_STARTED.value
+            case PROCESS_STATUS.RUNNING.value:
+                return PROCESS_STATES.PROCESS_STATE_RUNNING.value
+            case PROCESS_STATUS.RESTARTED.value:
+                return PROCESS_STATES.PROCESS_STATE_RESTARTED.value
+            case PROCESS_STATUS.STOPPED.value:
+                return PROCESS_STATES.PROCESS_STATE_STOPPED.value
+            case PROCESS_STATUS.EXCITED.value:
+                return PROCESS_STATES.PROCESS_STATE_EXCITED.value
+            case _:
+                return PROCESS_STATES.PROCESS_STATE_UNKNOWN.value
+
+    def make_log(self, old_status, new_status):
+        log = "server:Taskmaster|"
+        log += "eventid:" + str(uuid.uuid1()) + "|"
+        log += "date:" + 
+        log += "processname:" + self.name + "|"
+        log += "processcmd:" + self.cmd + "|"
+        log += "eventtype:PROCESS_STATES|"
+        log += "fromstate:" + self.process_state_from_status(old_status) + "|"
+        log += "tostate:" + self.process_state_from_status(new_status) + "|"
+        log += "lastexitcode:" + self.last_exit_code + "|"
+
+
 
     def start(self):
         if self.startretries != -1:

@@ -29,7 +29,7 @@ while timer:
         process.stdin.flush()
         res = process.stdout.readline().decode().strip()
         print("RES " + res)
-        payload="server:taskmaster|processname:cat|processcmd:cat -e toto.txt|pid:32178|eventtype:PROCESS_LOGS|eventsubtype:PROCESS_LOGS_STDOUT|eventdate:10/22/2023-13h52.00|eventid:13587410|payload:"+ log +"\n"
+        payload="server:taskmaster|processname:cat|processcmd:cat -e toto.txt|pid:32178|eventtype:PROCESS_LOGS|eventsubtype:PROCESS_LOGS_STDOUT|eventid:13587410|payload:"+ log +"\n"
         process.stdin.write(payload.encode())
         process.stdin.flush()
         res = process.stdout.readline().decode().strip()

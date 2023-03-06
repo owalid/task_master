@@ -50,8 +50,8 @@ if __name__ == "__main__":
     if taskmaster_options == False:
         print("Error while loading the configuration file.")
         exit(1)
-    event_listener = parse_event_listener_options_conf_file(conf_path)
-    if event_listener == False:
+    event_listener_options = parse_event_listener_options_conf_file(conf_path)
+    if event_listener_options == False:
         print("Error while loading the configuration file.")
         exit(1)
     check_rights_and_user(jobs, taskmaster_options)
@@ -60,4 +60,4 @@ if __name__ == "__main__":
     if args.deamonize:
         daemonize()
     # Start the main program
-    server = Server(jobs)
+    server = Server(jobs, event_listener_options)

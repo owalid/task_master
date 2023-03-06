@@ -5,12 +5,13 @@ from ParsingEnum import ALLOWED_COMMANDS
 SOCK_FILE = "/tmp/taskmaster.sock"
 
 class Server:
-    def __init__(self, jobs):
+    def __init__(self, jobs, event_listener_options):
         self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         if os.path.exists(SOCK_FILE):
             os.remove(SOCK_FILE)
         self.connection = None
         self.jobs = jobs
+        self.event_listener_options = event_listener_options
         self.start_all_jobs()
         self.bind()
         self.listen_accept_receive()

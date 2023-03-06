@@ -25,8 +25,4 @@ taskmasteroptions:
 
 eventlistener:
   activated: true
-  options: "-m toto@toto.com"
-  subscriptions: 
-    - PROCESS_STATES
-    - PROCESS_LOGS
-    - PRO
+  mail: "toto@toto.com"
