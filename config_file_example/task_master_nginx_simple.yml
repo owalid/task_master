@@ -12,6 +12,7 @@ programs:
     startretries: 3
     starttime: 5
     stoptime: 10
+    stopsignal: SIGTERM
     redirectstdout: true
     stdout: /tmp/nginx.stdout
     redirectstderr: false

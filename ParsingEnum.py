@@ -1,4 +1,5 @@
 from enum import Enum, EnumMeta
+import signal
 
 
 class MetaEnum(EnumMeta):
@@ -24,14 +25,7 @@ class RESTART_VALUES(BaseEnum):
     TRUE='true'
     FALSE='false'
 
-class STOP_SIGNAL(BaseEnum):
-    TERM='TERM'
-    HUP='HUP'
-    INT='INT'
-    QUIT='QUIT'
-    KILL='KILL'
-    USR1='USR1'
-    USR2='USR2'
+STOP_SIGNAL = [name for name in signal.Signals.__dict__.keys() if name.startswith('SIG')]
 
 class ALLOWED_PROGRAM_ENTRIES(BaseEnum):
     CMD='cmd'
