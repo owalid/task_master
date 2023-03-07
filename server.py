@@ -1,6 +1,7 @@
 import socket
 import os, subprocess
 from ParsingEnum import ALLOWED_COMMANDS
+from utils import send_result_command
 
 SOCK_FILE = "/tmp/taskmaster.sock"
 
@@ -49,7 +50,6 @@ class Server:
         Parse the data received from the socket.
         '''
         if data:
-
             data_splitted = data.split(" ")
             if len(data_splitted) < 2:
                 self.send("Invalid command.")
@@ -58,23 +58,20 @@ class Server:
             
             #! NEED TO REMOVE ONLY FOR DEBUG / TEST PURPOSE
             print(f"command: {command}, job_name: {job_name}")
-            res = ''
             if job_name == "all" and command in ALLOWED_COMMANDS:
                 for job in self.jobs:
-                    res = self.send_command(job.name, command)
-                    self.send(res)
+                    self.send_command(job.name, command)
                 return
             
             jobs_name = [job.name for job in self.jobs]
             invalid_job_name = job_name not in jobs_name
             invalid_command = command not in ALLOWED_COMMANDS
             if invalid_job_name:
-                self.send("Invalid job name.")
+                send_result_command("Invalid job name.", self.connection)
             elif invalid_command:
-                self.send("Invalid command.")
+                send_result_command("Invalid command.", self.connection)
             else:
-                res = self.send_command(job_name, command)
-                self.send(res)
+                self.send_command(job_name, command)
         return
 
     def listen_accept_receive(self):
@@ -100,12 +97,6 @@ class Server:
         '''
         if self.connection != None:
             self.connection.close()
-
-    def send(self, data):
-        '''
-        Send data to the socket.
-        '''
-        self.connection.send(data.encode())
     
     # Job management
     
@@ -137,5 +128,5 @@ class Server:
         if hasattr(job, cmd_name) and callable(job_function := getattr(job, cmd_name)):
             # get the function corresponding to the command from the job object
             # Example: if cmd_name == "status", then job_function = job.status
-            return job_function()
+            return job_function(self.connection)
         return "command not found."
