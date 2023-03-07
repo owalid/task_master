@@ -59,12 +59,17 @@ class Server:
         '''
         Accept a connection. The socket must be bound to an address and listening for connections.
         '''
-        self.server.listen()
-        self.connection, _ = self.server.accept()
-        while True:
-            self.connection.setblocking(True)
-            data = self.connection.recv(1024)
-            self.parse_data_received(data.decode())
+        try:
+            self.server.listen()
+            self.connection, _ = self.server.accept()
+            while True:
+                self.connection.setblocking(True)
+                data = self.connection.recv(1024)
+                self.parse_data_received(data.decode())
+        except KeyboardInterrupt:
+            print('')
+            self.close()
+            exit(0)
 
 
     def close(self):
