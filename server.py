@@ -1,21 +1,43 @@
 import socket
-import os
+import os, subprocess
 from ParsingEnum import ALLOWED_COMMANDS
 
 SOCK_FILE = "/tmp/taskmaster.sock"
 
 class Server:
-    def __init__(self, jobs):
+    def __init__(self, jobs, event_manager_options):
         self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         if os.path.exists(SOCK_FILE):
             os.remove(SOCK_FILE)
         self.connection = None
         self.jobs = jobs
+        self.event_manager_options = event_manager_options
+        self.event_manager_process = None
         self.start_all_jobs()
+        self.start_event_manager()
         self.bind()
         self.listen_accept_receive()
-        
-    
+
+    def start_event_manager(self):
+        '''
+        Start the event manager if option sets to true.
+        '''
+        try:
+            if self.event_manager_options.activated == True:
+                if os.path.exists("./event_manager/.env") == False:
+                    print("No .env file found.")
+                    print("First you need to enable 2FA on your google account.")
+                    print("Then you need to generate an app password (this will not be your real password).")
+                    print("link : https://support.google.com/accounts/answer/185833")
+                    print("When it's done, copy and paste the password inside a .env file at the root directory of eventmanager.py. Put your gmail account too.")
+                    print("Check .env_sample for an example.")
+                    exit(1)
+                self.event_manager_process = subprocess.Popen \
+                        (["python3", "event_manager/eventmanager.py"],  \
+                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except Exception as e:
+            print("[ERROR] The event manager could not be launched.")
+            print(e)
     def bind(self):
         '''
         Bind the socket to address.

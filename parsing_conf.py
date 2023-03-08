@@ -1,10 +1,11 @@
 #parsing_conf.py
 import yaml
 from Job import Job
-from ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS,SUBSCRIPTIONS_CAT, STOP_SIGNAL
+from ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS, STOP_SIGNAL
 import pwd
 from TaskmasterOptions import TaskmasterOptions
-from EventListenerOptions import EventListenerOptions
+from EventManagerOptions import EventManagerOptions
+import re
 
 def init_default_job(prg, values):
     have_env_in_conf = ALLOWED_PROGRAM_ENTRIES.ENV.value in values.keys()
@@ -27,7 +28,7 @@ def check_if_user_exists(username):
 
 def parse_event_listener_options_conf_file(conf_path):
     conf_file_loaded = None
-    event_listener_options =  EventListenerOptions() 
+    event_listener_options =  EventManagerOptions()
     try:
         with open(conf_path, 'r') as conf_file:
             conf_file_loaded = yaml.safe_load(conf_file)
@@ -46,9 +47,6 @@ def parse_event_listener_options_conf_file(conf_path):
                 return False
             if option == ALLOWED_EL_OPTIONS.ACTIVATED.value and not isinstance(value, bool):
                 print(f"{option} should be a boolean not {value}")
-                return False
-            if option == ALLOWED_EL_OPTIONS.SUBSCRIPTIONS.value and len([val for val in value if val not in SUBSCRIPTIONS_CAT]):
-                print(f"{option} can't be {value}.")
                 return False
             setattr(event_listener_options, option, value)
     return event_listener_options
