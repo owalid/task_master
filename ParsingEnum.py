@@ -72,7 +72,6 @@ class ALLOWED_TM_OPTIONS(BaseEnum):
 
 class ALLOWED_EL_OPTIONS(BaseEnum):
     ACTIVATED='activated'
-    MAIL='mail'
 
 # These options are to complex to implement for now.
 # I let them here if we need them in the future.
