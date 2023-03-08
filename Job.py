@@ -110,15 +110,24 @@ class Job:
         if self.startretries != -1:
             cmd_split = shlex.split(self.cmd)
             try:
-                self.process = subprocess.Popen(cmd_split,
-                                env=dict(self.env),
-                                stdout=open(self.stdout, 'w'),
-                                stderr=open(self.stderr, 'w'),
-                                cwd=self.workingdir,
-                                umask=self.umask
-                )
-                self.set_status(PROCESS_STATUS.RUNNING.value)
-            except Exception as e:
+                with open(self.stdout, 'w') as f_out:
+                    with open(self.stderr, 'w') as f_err:
+                        try:
+                            self.process = subprocess.Popen(cmd_split,
+                                            env=dict(self.env),
+                                            stdout=f_out,
+                                            stderr=f_err,
+                                            cwd=self.workingdir,
+                                            umask=self.umask
+                            )
+                            self.set_status(PROCESS_STATUS.RUNNING.value)
+                        except Exception as e:
+                            print(e)
+                            self.set_status(PROCESS_STATUS.STOPPED.value)
+                            self.startretries -= 1
+                            self.set_status(PROCESS_STATUS.RESTARTED.value)
+                            self.start()
+            except OSError as e:
                 print(e)
                 self.set_status(PROCESS_STATUS.STOPPED.value)
                 self.startretries -= 1
