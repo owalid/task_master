@@ -1,4 +1,4 @@
-from ParsingEnum import ALLOWED_COMMANDS
+from classes.ParsingEnum import ALLOWED_COMMANDS
 import socket
 
 def parse_command(input):

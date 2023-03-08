@@ -1,7 +1,7 @@
 import socket
 import os, subprocess
-from ParsingEnum import ALLOWED_COMMANDS
-from utils import send_result_command
+from classes.ParsingEnum import ALLOWED_COMMANDS
+from utils.command import send_result_command
 
 SOCK_FILE = "/tmp/taskmaster.sock"
 

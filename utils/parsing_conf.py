@@ -1,10 +1,10 @@
 #parsing_conf.py
 import yaml
-from Job import Job
-from ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS, STOP_SIGNAL
+from classes.Job import Job
+from classes.ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS, STOP_SIGNAL
 import pwd
-from TaskmasterOptions import TaskmasterOptions
-from EventManagerOptions import EventManagerOptions
+from classes.TaskmasterOptions import TaskmasterOptions
+from classes.EventManagerOptions import EventManagerOptions
 import re
 
 def init_default_job(prg, values):
