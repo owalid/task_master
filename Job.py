@@ -147,18 +147,15 @@ class Job:
             return self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         self.startretries  = self.original_startretries
 
-
-<<<<<<< HEAD
+       
     def stop(self, connection=None):
         if connection != None and isinstance(connection, socket.socket):
             connection.settimeout(self.stoptime)
-=======
-    def stop(self):
+
         signal_value = signal.Signals.__dict__.get(self.stopsignal)
 
         if signal_value:
             self.process.send_signal(signal_value)
->>>>>>> be5cc07 (feat: handle kill process signal)
         self.process.kill()
         self.set_status(PROCESS_STATUS.STOPPED.value, connection)
 
