@@ -1,9 +1,9 @@
 from datetime import datetime
-from utils import send_result_command
+from utils.command import send_result_command
 import socket
 import signal
 from colorama import Fore, Style
-from ParsingEnum import RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS
+from classes.ParsingEnum import RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS
 import shlex, subprocess, uuid, base64
 
 class Job:

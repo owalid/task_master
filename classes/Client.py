@@ -1,6 +1,6 @@
 import socket
 import os
-from server import SOCK_FILE
+from classes.Server import SOCK_FILE
 
 class Client:
     def __init__(self):

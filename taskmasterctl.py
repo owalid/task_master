@@ -1,5 +1,5 @@
-from client import Client
-from utils import parse_command
+from classes.Client import Client
+from utils.command import parse_command
 
 def clean_exit(client):
     client.close()

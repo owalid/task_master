@@ -1,9 +1,9 @@
 import argparse as ap
 import os, sys
-from server import Server
+from classes.Server import Server
 from argparse import RawTextHelpFormatter
-from parsing_conf import parse_job_conf_file, parse_taskmaster_options_conf_file, parse_event_listener_options_conf_file
-from check_rights import check_rights_and_user
+from utils.parsing_conf import parse_job_conf_file, parse_taskmaster_options_conf_file, parse_event_listener_options_conf_file
+from utils.check_rights import check_rights_and_user
 
 def daemonize():
     '''
