@@ -33,12 +33,14 @@ def daemonize():
 if __name__ == "__main__":
     parser = ap.ArgumentParser(formatter_class=RawTextHelpFormatter)
     parser.add_argument("-c", "--conf", required=True, type=str, help='Path of your configuration file')
+    parser.add_argument("-df", "--default",  required=False, action='store_true', default=False, help='Use default value of all the questions asked by the program')
 
     #! THIS OPTIONS IS USED ONLY FOR TESTING PURPOSES
     parser.add_argument("-d", "--deamonize", required=False, action='store_true', default=False, help='Deamonize')
 
     args = parser.parse_args()
 
+    print(args)
     # Load configuration file
     conf_path = args.conf
     print(conf_path)
@@ -54,7 +56,7 @@ if __name__ == "__main__":
     if event_listener_options == False:
         print("Error while loading the configuration file.")
         exit(1)
-    check_rights_and_user(jobs, taskmaster_options)
+    check_rights_and_user(jobs, taskmaster_options, accept_default=args.default)
 
     #! THIS CONDITION IS USED ONLY FOR TESTING PURPOSES
     if args.deamonize:
