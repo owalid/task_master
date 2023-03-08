@@ -1,4 +1,6 @@
 from datetime import datetime
+from utils import send_result_command
+import socket
 from colorama import Fore, Style
 from ParsingEnum import RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS
 import shlex, subprocess, uuid, base64
@@ -72,19 +74,23 @@ class Job:
             print(" ",key , ": ", value)
     
 
-    def set_status(self, new_status):
+    def set_status(self, new_status, connection=None):
         if new_status not in PROCESS_STATUS:
             raise TypeError("The status could'nt be changed. See ParsingEnum.py/PROCESS_STATUS for available statuses.")
         self.old_state = self.state
         self.state = new_status
         self.date_of_last_status_change = datetime.now().ctime()
         self.make_log()
+        self.status(connection)
 
-    def status(self):
+    def status(self, connection=None):
+        result = ''
         if self.state != PROCESS_STATUS.EXCITED.value:
-            return f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}."
+            result = f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.\n"
         else:
-            return f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} with code {self.lastExitCode} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}."
+            result = f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} with code {self.lastExitCode} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.\n"
+        
+        send_result_command(connection, result)
 
     def make_log(self):
         log = "server:Taskmaster|"
@@ -106,46 +112,48 @@ class Job:
         except:
             print("The logs could'nt be wrote.")
 
-    def start(self):
+    def start(self, connection=None):
         if self.startretries != -1:
             cmd_split = shlex.split(self.cmd)
             try:
                 with open(self.stdout, 'w') as f_out:
                     with open(self.stderr, 'w') as f_err:
                         try:
+                            self.set_status(PROCESS_STATUS.NOTSTARTED.value, connection)
                             self.process = subprocess.Popen(cmd_split,
                                             env=dict(self.env),
-                                            stdout=f_out,
-                                            stderr=f_err,
+                                            stdout=open(self.stdout, 'w'),
+                                            stderr=open(self.stderr, 'w'),
                                             cwd=self.workingdir,
                                             umask=self.umask
                             )
-                            self.set_status(PROCESS_STATUS.RUNNING.value)
+                            if connection != None and isinstance(connection, socket.socket):
+                                connection.settimeout(self.starttime)
+                            self.set_status(PROCESS_STATUS.RUNNING.value, connection)
                         except Exception as e:
                             print(e)
                             self.set_status(PROCESS_STATUS.STOPPED.value)
                             self.startretries -= 1
                             self.set_status(PROCESS_STATUS.RESTARTED.value)
-                            self.start()
+                            return self.start(connection)
             except OSError as e:
                 print(e)
                 self.set_status(PROCESS_STATUS.STOPPED.value)
                 self.startretries -= 1
                 self.set_status(PROCESS_STATUS.RESTARTED.value)
-                self.start()
+                return self.start(connection)
         else:
-            self.set_status(PROCESS_STATUS.EXCITED.value)
-        self.startretries  = self.original_startretries          
-        return self.status()
+            return self.set_status(PROCESS_STATUS.EXCITED.value, connection)
+        self.startretries  = self.original_startretries
 
 
-    def stop(self):
+    def stop(self, connection=None):
+        if connection != None and isinstance(connection, socket.socket):
+            connection.settimeout(self.stoptime)
         self.process.kill()
-        self.set_status(PROCESS_STATUS.STOPPED.value)
-        return self.status()
+        self.set_status(PROCESS_STATUS.STOPPED.value, connection)
 
-    def restart(self):
+    def restart(self, connection=None):
         self.stop()
-        self.set_status(PROCESS_STATUS.RESTARTED.value)
+        self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
         self.start()
-        return self.status()

@@ -1,4 +1,5 @@
 from ParsingEnum import ALLOWED_COMMANDS
+import socket
 
 def parse_command(input):
     '''
@@ -16,3 +17,12 @@ def parse_command(input):
         return (False, False)
     
     return (input, arguments)
+
+
+def send_result_command(connection, data):
+    '''
+    Send data to the socket.
+    '''
+    if data and isinstance(data, str) and connection and isinstance(connection, socket.socket):
+        connection.send(data.encode())
+        
