@@ -1,5 +1,1 @@
-server:Taskmaster|eventid:13546865644|date:TW9uIE1hciAgNiAxNTo1Nzo0OSAyMDIz|processname:cat|processcmd:cat -e toto.txt|eventtype:PROCESS_STATES|fromstate:RUNNING|tostate:EXITED|lastexitcode:0
-server:Taskmaster|eventid:45466895647|date:TW9uIE1hciAgNiAxNTo1Nzo0OSAyMDIz|processname:cat|processcmd:cat -e toto.txt|eventtype:PROCESS_STATES|fromstate:RESTARTED|tostate:STOPPED|lastexitcode:0
-server:Taskmaster|eventid:79846885671|date:TW9uIE1hciAgNiAxNTo1Nzo0OSAyMDIz|processname:cat|processcmd:cat -e toto.txt|eventtype:PROCESS_STATES|fromstate:RUNNING|tostate:UNKNOWN|lastexitcode:0
-server:Taskmaster|eventid:98766879694|date:TW9uIE1hciAgNiAxNTo1Nzo0OSAyMDIz|processname:cat|processcmd:cat -e toto.txt|eventtype:PROCESS_STATES|fromstate:RUNNING|tostate:EXITED|lastexitcode:0
-server:Taskmaster|eventid:46987687612|date:TW9uIE1hciAgNiAxNTo1Nzo0OSAyMDIz|processname:cat|processcmd:cat -e toto.txt|eventtype:PROCESS_STATES|fromstate:STARTED|tostate:RESTARTED|lastexitcode:0
+server:Taskmaster|eventid:4f928fc4-bd90-11ed-b146-25ce3366f63d|date:V2VkIE1hciAgOCAxMDowNTowMiAyMDIz|processname:nginx|processcmd:/usr/sbin/nginx -c /etc/nginx/test.conf|eventtype:PROCESS_STATES|fromstate:NOT STARTED|tostate:RUNNING|lastexitcode:0

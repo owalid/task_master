@@ -29,7 +29,7 @@ def check_if_user_exists(username):
 def parse_event_listener_options_conf_file(conf_path):
     conf_file_loaded = None
     event_listener_options =  EventManagerOptions()
-    #regex to check if value is a mail.
+    #regex to check if value is a gmail account.
     regex=r'^[A-Za-z0-9.]+@gmail.com$'
     try:
         with open(conf_path, 'r') as conf_file:
