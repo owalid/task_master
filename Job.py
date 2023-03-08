@@ -1,6 +1,7 @@
 from datetime import datetime
 from utils import send_result_command
 import socket
+import signal
 from colorama import Fore, Style
 from ParsingEnum import RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS
 import shlex, subprocess, uuid, base64
@@ -9,7 +10,7 @@ class Job:
     """Job is a class that contains all the required and optional options to do a job inside taskmaster's main program."""
 
     def __init__(self, name, cmd, user='', numprocs = 1, umask = 18, workingdir = '/tmp', autostart = True,
-    autorestart = RESTART_VALUES.UNEXPECTED.value, exitcodes = 0, startretries = 3, starttime = 5, stopsignal = STOP_SIGNAL.TERM.value,
+    autorestart = RESTART_VALUES.UNEXPECTED.value, exitcodes = 0, startretries = 3, starttime = 5, stopsignal = "SIGTERM",
     stoptime = 10, redirectstdout=False, stdout=None, redirectstderr=False, stderr=None, env=None):
         self.name = name
         self.cmd = cmd
@@ -147,9 +148,17 @@ class Job:
         self.startretries  = self.original_startretries
 
 
+<<<<<<< HEAD
     def stop(self, connection=None):
         if connection != None and isinstance(connection, socket.socket):
             connection.settimeout(self.stoptime)
+=======
+    def stop(self):
+        signal_value = signal.Signals.__dict__.get(self.stopsignal)
+
+        if signal_value:
+            self.process.send_signal(signal_value)
+>>>>>>> be5cc07 (feat: handle kill process signal)
         self.process.kill()
         self.set_status(PROCESS_STATUS.STOPPED.value, connection)
 
