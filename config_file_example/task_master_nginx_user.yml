@@ -25,4 +25,3 @@ taskmasteroptions:
 
 eventlistener:
   activated: true
-  mail: "taskmaster.eventmanager@gmail.com"
