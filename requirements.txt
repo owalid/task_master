@@ -1,4 +1,4 @@
 colorama
 pyyaml
-yagmail
-dotenv
+yagmail[all]
+python-dotenv

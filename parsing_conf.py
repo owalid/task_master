@@ -29,8 +29,6 @@ def check_if_user_exists(username):
 def parse_event_listener_options_conf_file(conf_path):
     conf_file_loaded = None
     event_listener_options =  EventManagerOptions()
-    #regex to check if value is a gmail account.
-    regex=r'^[A-Za-z0-9.]+@gmail.com$'
     try:
         with open(conf_path, 'r') as conf_file:
             conf_file_loaded = yaml.safe_load(conf_file)
@@ -49,9 +47,6 @@ def parse_event_listener_options_conf_file(conf_path):
                 return False
             if option == ALLOWED_EL_OPTIONS.ACTIVATED.value and not isinstance(value, bool):
                 print(f"{option} should be a boolean not {value}")
-                return False
-            if option == ALLOWED_EL_OPTIONS.MAIL.value and re.fullmatch(regex, value) == False:
-                print(f"{value} is not a gmail account !")
                 return False
             setattr(event_listener_options, option, value)
     return event_listener_options

@@ -1,1 +1,0 @@
-server:Taskmaster|eventid:4f928fc4-bd90-11ed-b146-25ce3366f63d|date:V2VkIE1hciAgOCAxMDowNTowMiAyMDIz|processname:nginx|processcmd:/usr/sbin/nginx -c /etc/nginx/test.conf|eventtype:PROCESS_STATES|fromstate:NOT STARTED|tostate:RUNNING|lastexitcode:0
