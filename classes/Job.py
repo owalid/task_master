@@ -92,6 +92,9 @@ class Job:
             result = f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} with code {self.lastExitCode} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.\n"
         
         send_result_command(connection, result)
+    
+    def get_state(self):
+        return self.state
 
     def make_log(self):
         log = "server:Taskmaster|"
