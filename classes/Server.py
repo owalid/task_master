@@ -88,9 +88,6 @@ class Server:
                 for job in self.jobs:
                     if job.process.poll() is not None:
                         job.last_exit_code = job.process.returncode
-                        if job.state != PROCESS_STATUS.STOPPED.value:
-                            print("On restart du serveur")
-                            job.restart()
         except KeyboardInterrupt:
             print('')
             self.close()
