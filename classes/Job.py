@@ -92,7 +92,7 @@ class Job:
             result = f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} with code {self.last_exit_code} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.\n"
 
         send_result_command(connection, result)
-    
+
     def get_state(self):
         return self.state
 
@@ -134,6 +134,11 @@ class Job:
                             if connection != None and isinstance(connection, socket.socket):
                                 connection.settimeout(self.starttime)
                             self.set_status(PROCESS_STATUS.RUNNING.value, connection)
+                            while self.process.poll() is None:
+                                continue
+                            print("Self.process.poll() n'est plus à None")
+                            self.last_exit_code = self.process.returncode
+                            self.set_status(PROCESS_STATUS.EXCITED.value, connection)
                         except Exception as e:
                             print(e)
                             return self.restart(connection)
