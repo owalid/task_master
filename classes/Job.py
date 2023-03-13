@@ -139,7 +139,7 @@ class Job:
                 return self.restart(connection)
         else:
             return self.set_status(PROCESS_STATUS.EXCITED.value, connection)
-        self.startretries  = self.original_startretries
+        # self.startretries  = self.original_startretries
 
 
     def stop(self, connection=None):
