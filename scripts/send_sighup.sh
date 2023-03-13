@@ -1,0 +1,1 @@
+kill -s SIGHUP $(ps -C "python3 taskmaster.py" -o pid | tail -1 | tr -d ' ')

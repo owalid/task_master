@@ -1,9 +1,15 @@
 import argparse as ap
 import os, sys
+import signal
 from classes.Server import Server
 from argparse import RawTextHelpFormatter
 from utils.parsing_conf import parse_job_conf_file, parse_taskmaster_options_conf_file, parse_event_listener_options_conf_file
 from utils.check_rights import check_rights_and_user
+
+def handle_sighup(signum, frame):
+    server = Server.get_instance()
+    server.start_all_jobs()
+    print("SIGHUP received, restarting all jobs.")
 
 def daemonize():
     '''
@@ -57,9 +63,12 @@ if __name__ == "__main__":
         print("Error while loading the configuration file.")
         exit(1)
     check_rights_and_user(jobs, taskmaster_options, accept_default=args.default)
+    server = Server(jobs, event_listener_options)
+
+    signal.signal(signal.SIGHUP, handle_sighup)
 
     #! THIS CONDITION IS USED ONLY FOR TESTING PURPOSES
     if args.deamonize:
         daemonize()
-    # Start the main program
-    server = Server(jobs, event_listener_options)
+    # Start server
+    server.start_server()

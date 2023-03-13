@@ -6,14 +6,33 @@ from utils.command import send_result_command
 SOCK_FILE = "/tmp/taskmaster.sock"
 
 class Server:
+    # __instance is used to store the instance of the class
+    __instance = None
+
+    @staticmethod
+    def get_instance():
+        '''
+        Static access method.
+        '''
+        if Server.__instance == None:
+            Server()
+        return Server.__instance
+
     def __init__(self, jobs, event_manager_options):
-        self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        if os.path.exists(SOCK_FILE):
-            os.remove(SOCK_FILE)
-        self.connection = None
-        self.jobs = jobs
-        self.event_manager_options = event_manager_options
-        self.event_manager_process = None
+        if Server.__instance != None:
+            return Server.__instance
+        else:
+            self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            if os.path.exists(SOCK_FILE):
+                os.remove(SOCK_FILE)
+            self.connection = None
+            self.jobs = jobs
+            self.event_manager_options = event_manager_options
+            self.event_manager_process = None
+            Server.__instance = self
+
+
+    def start_server(self):
         self.start_all_jobs()
         self.start_event_manager()
         self.bind()
@@ -39,6 +58,7 @@ class Server:
         except Exception as e:
             print("[ERROR] The event manager could not be launched.")
             print(e)
+
     def bind(self):
         '''
         Bind the socket to address.
@@ -118,7 +138,8 @@ class Server:
         Start all jobs if "autostart" option is sets to true
         '''
         for job in self.jobs:
-            if job.autostart == True:
+            job_state = job.get_state()
+            if job_state != PROCESS_STATUS.RUNNING.value and job_state != PROCESS_STATUS.STARTED.value and job_state != PROCESS_STATUS.RESTARTED.value:
                 job.start()
 
     def send_command(self, job_name, cmd_name):
