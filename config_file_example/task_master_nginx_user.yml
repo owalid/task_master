@@ -1,12 +1,12 @@
 programs:
   nginx:
-    cmd: "/usr/sbin/nginx -c /etc/nginx/test.conf"
+    cmd: "/usr/sbin/nginx -c /etc/nginx/nginx.conf"
     numprocs: 1
     umask: 022
     workingdir: /tmp
     user: kibatche
     autostart: true
-    autorestart: unexpected
+    autorestart: true
     exitcodes:
       - 0
       - 2
@@ -20,8 +20,10 @@ programs:
     env:
       STARTED_BY: taskmaster
       ANSWER: 42
+  # php:
+  #   cmd: "/usr/bin/php -S 0.0.0.0:4242"
 taskmasteroptions:
   rootwarn: false
 
 eventlistener:
-  activated: true
+  activated: false

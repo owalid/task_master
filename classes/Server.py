@@ -55,14 +55,14 @@ class Server:
                 self.send("Invalid command.")
                 return
             command, job_name = data_splitted[0], data_splitted[1]
-            
+
             #! NEED TO REMOVE ONLY FOR DEBUG / TEST PURPOSE
             print(f"command: {command}, job_name: {job_name}")
             if job_name == "all" and command in ALLOWED_COMMANDS:
                 for job in self.jobs:
                     self.send_command(job.name, command)
                 return
-            
+
             jobs_name = [job.name for job in self.jobs]
             invalid_job_name = job_name not in jobs_name
             invalid_command = command not in ALLOWED_COMMANDS
@@ -97,9 +97,9 @@ class Server:
         '''
         if self.connection != None:
             self.connection.close()
-    
+
     # Job management
-    
+
     @staticmethod
     def get_job_from_name(jobs, job_name):
         '''
@@ -109,14 +109,15 @@ class Server:
             if job.name == job_name:
                 return job
         return None
-    
+
     def start_all_jobs(self):
         '''
-        Start all jobs.
+        Start all jobs if "autostart" option is sets to true
         '''
         for job in self.jobs:
-            job.start()
-    
+            if job.autostart == True:
+                job.start()
+
     def send_command(self, job_name, cmd_name):
         '''
         Send an command to the job.

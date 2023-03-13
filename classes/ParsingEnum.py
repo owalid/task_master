@@ -8,12 +8,11 @@ class MetaEnum(EnumMeta):
             cls(item)
         except ValueError:
             return False
-        return True    
+        return True
 
 
 class BaseEnum(Enum, metaclass=MetaEnum):
     pass
-
 
 class ALLOWED_CATEGORIES(BaseEnum):
     PROGRAMS='programs'
@@ -22,8 +21,8 @@ class ALLOWED_CATEGORIES(BaseEnum):
 
 class RESTART_VALUES(BaseEnum):
     UNEXPECTED='unexpected'
-    TRUE='true'
-    FALSE='false'
+    TRUE=True
+    FALSE=False
 
 STOP_SIGNAL = [name for name in signal.Signals.__dict__.keys() if name.startswith('SIG')]
 
@@ -69,7 +68,7 @@ class ALLOWED_EL_OPTIONS(BaseEnum):
 
 # These options are to complex to implement for now.
 # I let them here if we need them in the future.
-# Currently, we allow only one type of log, PROCESS_STATES. 
+# Currently, we allow only one type of log, PROCESS_STATES.
 #     SUBSCRIPTIONS='subscriptions'
 
 # class SUBSCRIPTIONS_CAT(BaseEnum):
