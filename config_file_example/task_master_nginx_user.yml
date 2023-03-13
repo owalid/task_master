@@ -1,6 +1,6 @@
 programs:
-  nginx:
-    cmd: "/usr/sbin/nginx -c /etc/nginx/nginx.conf"
+  php:
+    cmd: "/usr/bin/php -S 0.0.0.0:4242"
     numprocs: 1
     umask: 022
     workingdir: /tmp
@@ -14,9 +14,9 @@ programs:
     starttime: 5
     stoptime: 10
     redirectstdout: true
-    stdout: /tmp/nginx.stdout
+    stdout: /tmp/php.stdout
     redirectstderr: false
-    stderr: /tmp/nginx.stderr
+    stderr: /tmp/php.stderr
     env:
       STARTED_BY: taskmaster
       ANSWER: 42

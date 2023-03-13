@@ -102,7 +102,7 @@ class Job:
         log += "eventtype:PROCESS_STATES|"
         log += "fromstate:" + self.old_state.upper() + "|"
         log += "tostate:" + self.state.upper() + "|"
-        log += "lastexitcode:" + str(self.last_exit_code)
+        log += "lastexitcode:" + str(self.last_exit_code) + "\n"
         try:
             with open("/tmp/.taskmaster_raw_logs", "a") as file_log:
                 file_log.write(log)
@@ -110,8 +110,8 @@ class Job:
             with open("./logs/taskmaster_raw_logs.log", "a") as raw_log:
                 raw_log.write(log)
             raw_log.close()
-        except:
-            print("The logs could'nt be wrote.")
+        except Exception as e:
+            print(f"The logs could'nt be wrote : {e}")
 
     def start(self, connection=None):
         if self.startretries != -1:
@@ -121,7 +121,6 @@ class Job:
                 with open(self.stdout, 'w') as f_out:
                     with open(self.stderr, 'w') as f_err:
                         try:
-                            self.set_status(PROCESS_STATUS.NOTSTARTED.value, connection)
                             self.process = subprocess.Popen(cmd_split,
                                             env=dict(self.env),
                                             stdout=open(self.stdout, 'w'),
@@ -132,23 +131,12 @@ class Job:
                             if connection != None and isinstance(connection, socket.socket):
                                 connection.settimeout(self.starttime)
                             self.set_status(PROCESS_STATUS.RUNNING.value, connection)
-                            while self.process.poll() is None:
-                                continue
-                            print("Self.process.poll() n'est plus à None")
-                            self.last_exit_code = self.process.returncode
-                            self.set_status(PROCESS_STATUS.EXCITED.value, connection)
                         except Exception as e:
                             print(e)
-                            self.set_status(PROCESS_STATUS.STOPPED.value)
-                            self.startretries -= 1
-                            self.set_status(PROCESS_STATUS.RESTARTED.value)
-                            return self.start(connection)
+                            return self.restart(connection)
             except OSError as e:
                 print(e)
-                self.set_status(PROCESS_STATUS.STOPPED.value)
-                self.startretries -= 1
-                self.set_status(PROCESS_STATUS.RESTARTED.value)
-                return self.start(connection)
+                return self.restart(connection)
         else:
             return self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         self.startretries  = self.original_startretries
@@ -166,12 +154,15 @@ class Job:
         self.set_status(PROCESS_STATUS.STOPPED.value, connection)
 
     def restart(self, connection=None):
+        self.startretries -= 1
         if self.autorestart == False:
+            print("autorestart == false")
             self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         elif self.autorestart == RESTART_VALUES.UNEXPECTED.value:
             normal_exit_code = True
             for exitcode in self.exitcodes:
                 if self.last_exit_code != exitcode:
+                    #for debugging purpose only
                     print(f"The exit code is not expected : {str(self.last_exit_code)}")
                     self.stop()
                     self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
@@ -180,6 +171,7 @@ class Job:
             if normal_exit_code == True:
                 self.set_status(PROCESS_STATUS.STOPPED.value, connection)
         else:
+            print("autorestart == true")
             self.stop()
             self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
             self.start()

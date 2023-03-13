@@ -1,6 +1,6 @@
 import socket
 import os, subprocess
-from classes.ParsingEnum import ALLOWED_COMMANDS
+from classes.ParsingEnum import ALLOWED_COMMANDS, PROCESS_STATUS
 from utils.command import send_result_command
 
 SOCK_FILE = "/tmp/taskmaster.sock"
@@ -85,6 +85,12 @@ class Server:
                 self.connection.setblocking(True)
                 data = self.connection.recv(1024)
                 self.parse_data_received(data.decode())
+                for job in self.jobs:
+                    if job.process.poll() is not None:
+                        job.last_exit_code = job.process.returncode
+                        if job.state != PROCESS_STATUS.STOPPED.value:
+                            print("On restart du serveur")
+                            job.restart()
         except KeyboardInterrupt:
             print('')
             self.close()
