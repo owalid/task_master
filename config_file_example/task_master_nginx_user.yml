@@ -1,11 +1,16 @@
 programs:
 <<<<<<< HEAD
+<<<<<<< HEAD
   php:
     cmd: "/usr/bin/php -S 0.0.0.0:4242"
 =======
   nginx:
     cmd: "/usr/sbin/nginx -c /etc/nginx/nginx.conf"
 >>>>>>> c402cdf (Changes to be committed:)
+=======
+  php:
+    cmd: "/usr/bin/php -S 0.0.0.0:4242"
+>>>>>>> cb96011 (Changes to be committed:)
     numprocs: 1
     umask: 022
     workingdir: /tmp
