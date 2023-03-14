@@ -1,7 +1,7 @@
 
 programs:
   nginx:
-    cmd: "/usr/sbin/nginx -c /etc/nginx/test.conf"
+    cmd: "/usr/sbin/nginx -c /tmp/nginx.conf"
     numprocs: 1
     umask: 022
     workingdir: /tmp
@@ -25,4 +25,4 @@ taskmasteroptions:
   rootwarn: false
 
 eventlistener:
-  activated: true
+  activated: false

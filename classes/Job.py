@@ -161,16 +161,13 @@ class Job:
             print("autorestart == false")
             self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         elif self.autorestart == RESTART_VALUES.UNEXPECTED.value:
-            normal_exit_code = True
-            for exitcode in self.exitcodes:
-                if self.last_exit_code != exitcode:
-                    #for debugging purpose only
-                    print(f"The exit code is not expected : {str(self.last_exit_code)}")
-                    self.stop()
-                    self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
-                    self.start()
-                    normal_exit_code = False
-            if normal_exit_code == True:
+            if self.last_exit_code not in self.exitcodes:
+                #for debugging purpose only
+                print(f"The exit code is not expected : {str(self.last_exit_code)}")
+                self.stop()
+                self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
+                self.start()
+            else:
                 self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         else:
             #for debugging purpose only
