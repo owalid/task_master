@@ -11,7 +11,7 @@ class Job:
 
     def __init__(self, name, cmd, user='', numprocs = 1, umask = 18, workingdir = '/tmp', autostart = True,
     autorestart = RESTART_VALUES.UNEXPECTED.value, exitcodes = 0, startretries = 3, starttime = 5, stopsignal = "SIGTERM",
-    stoptime = 10, redirectstdout=False, stdout="/dev/null", redirectstderr=False, stderr="/dev/null", env=None):
+    stoptime = 10, redirectstdout=False, stdout=None, redirectstderr=False, stderr=None, env=None):
         self.name = name
         self.cmd = cmd
         self.user = user
@@ -37,17 +37,16 @@ class Job:
         if self.redirectstdout == True and stdout == None:
             self.stdout = '/tmp/' + self.name + '.stdout'
         elif self.redirectstdout == False:
-            self.stdout = ''
+            self.stdout = '/dev/null'
         else :
             self.stdout = stdout
         self.redirectstderr = redirectstderr
         if self.redirectstderr == True and stderr == None:
             self.stderr = '/tmp/' + self.name + '.stderr'
         elif  self.redirectstderr == False:
-            self.stderr = ''
+            self.stderr = '/dev/null'
         else :
             self.stderr = stderr
-
         self.state = PROCESS_STATUS.NOTSTARTED.value
         self.old_state = PROCESS_STATUS.UNKNOWN.value
         self.date_of_last_status_change = datetime.now().ctime()
@@ -172,8 +171,9 @@ class Job:
                     self.start()
                     normal_exit_code = False
             if normal_exit_code == True:
-                self.set_status(PROCESS_STATUS.STOPPED.value, connection)
+                self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         else:
+            #for debugging purpose only
             print("autorestart == true")
             self.stop()
             self.set_status(PROCESS_STATUS.RESTARTED.value, connection)

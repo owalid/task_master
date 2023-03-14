@@ -21,7 +21,7 @@ def daemonize():
     except OSError as err:
         print(f"Fork error: {err}")
         exit(1)
-    
+
     os.chdir('/') # change directory to root
     os.setsid() # change session id of process
     os.umask(0) # change permission mask of process
@@ -47,9 +47,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print(args)
-    # Load configuration file
+    # Load configuration files
     conf_path = args.conf
-    print(conf_path)
     jobs = parse_job_conf_file(conf_path)
     if jobs == False:
         print("Error while loading the configuration file.")
