@@ -1,19 +1,38 @@
 import socket
 import os, subprocess
-from classes.ParsingEnum import ALLOWED_COMMANDS
+from classes.ParsingEnum import ALLOWED_COMMANDS, PROCESS_STATUS
 from utils.command import send_result_command
 
 SOCK_FILE = "/tmp/taskmaster.sock"
 
 class Server:
+    # __instance is used to store the instance of the class
+    __instance = None
+
+    @staticmethod
+    def get_instance():
+        '''
+        Static access method.
+        '''
+        if Server.__instance == None:
+            Server()
+        return Server.__instance
+
     def __init__(self, jobs, event_manager_options):
-        self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        if os.path.exists(SOCK_FILE):
-            os.remove(SOCK_FILE)
-        self.connection = None
-        self.jobs = jobs
-        self.event_manager_options = event_manager_options
-        self.event_manager_process = None
+        if Server.__instance != None:
+            return Server.__instance
+        else:
+            self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            if os.path.exists(SOCK_FILE):
+                os.remove(SOCK_FILE)
+            self.connection = None
+            self.jobs = jobs
+            self.event_manager_options = event_manager_options
+            self.event_manager_process = None
+            Server.__instance = self
+
+
+    def start_server(self):
         self.start_all_jobs()
         self.start_event_manager()
         self.bind()
@@ -39,6 +58,7 @@ class Server:
         except Exception as e:
             print("[ERROR] The event manager could not be launched.")
             print(e)
+
     def bind(self):
         '''
         Bind the socket to address.
@@ -55,14 +75,14 @@ class Server:
                 self.send("Invalid command.")
                 return
             command, job_name = data_splitted[0], data_splitted[1]
-            
+
             #! NEED TO REMOVE ONLY FOR DEBUG / TEST PURPOSE
             print(f"command: {command}, job_name: {job_name}")
             if job_name == "all" and command in ALLOWED_COMMANDS:
                 for job in self.jobs:
                     self.send_command(job.name, command)
                 return
-            
+
             jobs_name = [job.name for job in self.jobs]
             invalid_job_name = job_name not in jobs_name
             invalid_command = command not in ALLOWED_COMMANDS
@@ -85,6 +105,9 @@ class Server:
                 self.connection.setblocking(True)
                 data = self.connection.recv(1024)
                 self.parse_data_received(data.decode())
+                for job in self.jobs:
+                    if job.process.poll() is not None:
+                        job.last_exit_code = job.process.returncode
         except KeyboardInterrupt:
             print('')
             self.close()
@@ -97,9 +120,9 @@ class Server:
         '''
         if self.connection != None:
             self.connection.close()
-    
+
     # Job management
-    
+
     @staticmethod
     def get_job_from_name(jobs, job_name):
         '''
@@ -109,14 +132,17 @@ class Server:
             if job.name == job_name:
                 return job
         return None
-    
+
     def start_all_jobs(self):
         '''
-        Start all jobs.
+        Start all jobs if "autostart" option is sets to true
         '''
         for job in self.jobs:
-            job.start()
-    
+            job_state = job.get_state()
+            if job.autostart == True and job_state != PROCESS_STATUS.RUNNING.value \
+            and job_state != PROCESS_STATUS.STARTED.value and job_state != PROCESS_STATUS.RESTARTED.value:
+                job.start()
+
     def send_command(self, job_name, cmd_name):
         '''
         Send an command to the job.

@@ -25,37 +25,36 @@ class Job:
         self.original_startretries = startretries
         self.starttime = starttime
         self.stopsignal = stopsignal
-        self.stoptime = stoptime 
+        self.stoptime = stoptime
         self.redirectstdout = redirectstdout
-      
+
         self.env = {}
         self.process = None
-        
+
         for key, value in env.items():
             self.env[key] = str(value)
 
         if self.redirectstdout == True and stdout == None:
             self.stdout = '/tmp/' + self.name + '.stdout'
         elif self.redirectstdout == False:
-            self.stdout = ''
+            self.stdout = '/dev/null'
         else :
             self.stdout = stdout
         self.redirectstderr = redirectstderr
         if self.redirectstderr == True and stderr == None:
             self.stderr = '/tmp/' + self.name + '.stderr'
         elif  self.redirectstderr == False:
-            self.stderr = ''
+            self.stderr = '/dev/null'
         else :
             self.stderr = stderr
-
         self.state = PROCESS_STATUS.NOTSTARTED.value
         self.old_state = PROCESS_STATUS.UNKNOWN.value
         self.date_of_last_status_change = datetime.now().ctime()
         self.last_exit_code = 0
-    
+
     def print_conf(self):
         print("Name : "  + self.name)
-        print("Command : " + self.cmd)        
+        print("Command : " + self.cmd)
         print("Number of proc " + str(self.numprocs))
         print("Umask : " + str(self.umask))
         print("Working Directory : " + self.workingdir)
@@ -73,7 +72,7 @@ class Job:
         print("env : ")
         for key, value in self.env.items():
             print(" ",key , ": ", value)
-    
+
 
     def set_status(self, new_status, connection=None):
         if new_status not in PROCESS_STATUS:
@@ -89,9 +88,12 @@ class Job:
         if self.state != PROCESS_STATUS.EXCITED.value:
             result = f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.\n"
         else:
-            result = f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} with code {self.lastExitCode} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.\n"
-        
+            result = f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} with code {self.last_exit_code} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.\n"
+
         send_result_command(connection, result)
+
+    def get_state(self):
+        return self.state
 
     def make_log(self):
         log = "server:Taskmaster|"
@@ -102,7 +104,7 @@ class Job:
         log += "eventtype:PROCESS_STATES|"
         log += "fromstate:" + self.old_state.upper() + "|"
         log += "tostate:" + self.state.upper() + "|"
-        log += "lastexitcode:" + str(self.last_exit_code)
+        log += "lastexitcode:" + str(self.last_exit_code) + "\n"
         try:
             with open("/tmp/.taskmaster_raw_logs", "a") as file_log:
                 file_log.write(log)
@@ -110,17 +112,17 @@ class Job:
             with open("./logs/taskmaster_raw_logs.log", "a") as raw_log:
                 raw_log.write(log)
             raw_log.close()
-        except:
-            print("The logs could'nt be wrote.")
+        except Exception as e:
+            print(f"The logs could'nt be wrote : {e}")
 
     def start(self, connection=None):
         if self.startretries != -1:
             cmd_split = shlex.split(self.cmd)
             try:
+                print(f"CMD = {self.cmd}")
                 with open(self.stdout, 'w') as f_out:
                     with open(self.stderr, 'w') as f_err:
                         try:
-                            self.set_status(PROCESS_STATUS.NOTSTARTED.value, connection)
                             self.process = subprocess.Popen(cmd_split,
                                             env=dict(self.env),
                                             stdout=open(self.stdout, 'w'),
@@ -133,21 +135,15 @@ class Job:
                             self.set_status(PROCESS_STATUS.RUNNING.value, connection)
                         except Exception as e:
                             print(e)
-                            self.set_status(PROCESS_STATUS.STOPPED.value)
-                            self.startretries -= 1
-                            self.set_status(PROCESS_STATUS.RESTARTED.value)
-                            return self.start(connection)
+                            return self.restart(connection)
             except OSError as e:
                 print(e)
-                self.set_status(PROCESS_STATUS.STOPPED.value)
-                self.startretries -= 1
-                self.set_status(PROCESS_STATUS.RESTARTED.value)
-                return self.start(connection)
+                return self.restart(connection)
         else:
             return self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         self.startretries  = self.original_startretries
 
-       
+
     def stop(self, connection=None):
         if connection != None and isinstance(connection, socket.socket):
             connection.settimeout(self.stoptime)
@@ -160,6 +156,23 @@ class Job:
         self.set_status(PROCESS_STATUS.STOPPED.value, connection)
 
     def restart(self, connection=None):
-        self.stop()
-        self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
-        self.start()
+        self.startretries -= 1
+        if self.autorestart == False:
+            print("autorestart == false")
+            self.set_status(PROCESS_STATUS.EXCITED.value, connection)
+        elif self.autorestart == RESTART_VALUES.UNEXPECTED.value:
+            if self.last_exit_code not in self.exitcodes:
+                #for debugging purpose only
+                print(f"The exit code is not expected : {str(self.last_exit_code)}")
+                self.stop()
+                self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
+                self.start()
+            else:
+                self.set_status(PROCESS_STATUS.EXCITED.value, connection)
+        else:
+            #for debugging purpose only
+            print("autorestart == true")
+            self.stop()
+            self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
+            self.start()
+

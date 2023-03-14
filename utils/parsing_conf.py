@@ -1,7 +1,7 @@
 #parsing_conf.py
 import yaml
 from classes.Job import Job
-from classes.ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS, STOP_SIGNAL
+from classes.ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS, STOP_SIGNAL, RESTART_VALUES
 import pwd
 from classes.TaskmasterOptions import TaskmasterOptions
 from classes.EventManagerOptions import EventManagerOptions
@@ -53,7 +53,7 @@ def parse_event_listener_options_conf_file(conf_path):
 
 def parse_taskmaster_options_conf_file(conf_path):
     conf_file_loaded = None
-    taskmaster_options =  TaskmasterOptions() 
+    taskmaster_options =  TaskmasterOptions()
     try:
         with open(conf_path, 'r') as conf_file:
             conf_file_loaded = yaml.safe_load(conf_file)
@@ -79,7 +79,7 @@ def parse_taskmaster_options_conf_file(conf_path):
 
 def parse_job_conf_file(conf_path):
     conf_file_loaded = None
-    list_of_jobs = []   
+    list_of_jobs = []
     try:
         with open(conf_path, 'r') as conf_file:
             conf_file_loaded = yaml.safe_load(conf_file)
@@ -94,7 +94,7 @@ def parse_job_conf_file(conf_path):
             continue
         for prg, values in config.items():
             current_job, values = init_default_job(prg, values)
-            for key, value in values.items() : 
+            for key, value in values.items() :
                 if key not in ALLOWED_PROGRAM_ENTRIES:
                     print(f"\"{key}\" is not an allowed key.")
                     return False
@@ -112,6 +112,14 @@ def parse_job_conf_file(conf_path):
                     if check_if_user_exists(value) == False:
                         print(f"The user {value} does'nt exist or is not permitted. Please put a valid user.")
                         return False
+                if key == ALLOWED_PROGRAM_ENTRIES.AUTOSTART.value and not isinstance(value, bool):
+                    print(f"{key} must be a boolean value.")
+                    return False
+                if key == ALLOWED_PROGRAM_ENTRIES.AUTORESTART.value and value not in RESTART_VALUES:
+                    print(f"{key} must be sets to true, false or unexpected.")
+                    return False
                 setattr(current_job, key, value)
+            current_job.stderr = '/dev/null' if current_job.redirectstderr == False else current_job.stderr
+            current_job.stdout = '/dev/null' if current_job.redirectstdout == False else current_job.stdout
             list_of_jobs.append(current_job)
     return False if len(list_of_jobs) == 0 else list_of_jobs
