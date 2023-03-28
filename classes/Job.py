@@ -1,6 +1,7 @@
 from datetime import datetime
 from utils.command import send_result_command
 import socket
+import os
 import signal
 from colorama import Fore, Style
 from classes.ParsingEnum import RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS
@@ -149,10 +150,12 @@ class Job:
             connection.settimeout(self.stoptime)
 
         signal_value = signal.Signals.__dict__.get(self.stopsignal)
-
         if signal_value:
             self.process.send_signal(signal_value)
-        self.process.kill()
+        else:
+            signal_value = signal.SIGKILL
+        pid = self.process.pid
+        os.kill(pid, signal_value)
         self.set_status(PROCESS_STATUS.STOPPED.value, connection)
 
     def restart(self, connection=None):

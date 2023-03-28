@@ -23,8 +23,12 @@ class Client:
         self.client_socket.send(data.encode())
 
     def receive(self):
-        data = self.client_socket.recv(1024)
-        return data.decode()
+        try:
+            data = self.client_socket.recv(1024)
+            return data.decode()
+        except ConnectionResetError:
+            print("Connection reset by peer")
+            exit(1)
 
     def close(self):
         if self.client_socket != None:
