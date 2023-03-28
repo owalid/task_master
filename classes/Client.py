@@ -20,7 +20,14 @@ class Client:
 
     def send(self, data):
         print(data)
-        self.client_socket.send(data.encode())
+        try:
+            self.client_socket.send(data.encode())
+        except ConnectionResetError:
+            print("Connection reset by peer")
+            exit(1)
+        except BrokenPipeError:
+            print("Broken pipe")
+            exit(1)
 
     def receive(self):
         try:

@@ -116,7 +116,10 @@ class Job:
         except Exception as e:
             print(f"The logs could'nt be wrote : {e}")
 
-    def start(self, connection=None):
+    def start(self, connection=None, restart=False):
+        if self.state == PROCESS_STATUS.RUNNING.value and restart == False:
+            return send_result_command(connection, f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is already running.\nPlease use restart command to restart it.\n")
+
         if self.startretries != -1:
             cmd_split = shlex.split(self.cmd)
             try:
@@ -149,13 +152,16 @@ class Job:
         if connection != None and isinstance(connection, socket.socket):
             connection.settimeout(self.stoptime)
 
+        
         signal_value = signal.Signals.__dict__.get(self.stopsignal)
-        if signal_value:
-            self.process.send_signal(signal_value)
-        else:
+        if not signal_value:
             signal_value = signal.SIGKILL
         pid = self.process.pid
-        os.kill(pid, signal_value)
+        try:
+            os.kill(pid, signal_value)
+        except ProcessLookupError:
+            send_result_command(connection, f"Error: process {self.name} is not running")
+            return
         self.set_status(PROCESS_STATUS.STOPPED.value, connection)
 
     def restart(self, connection=None):
@@ -167,15 +173,15 @@ class Job:
             if self.last_exit_code not in self.exitcodes:
                 #for debugging purpose only
                 print(f"The exit code is not expected : {str(self.last_exit_code)}")
-                self.stop()
+                self.stop(connection=connection)
                 self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
-                self.start()
+                self.start(connection=connection, restart=True)
             else:
                 self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         else:
             #for debugging purpose only
             print("autorestart == true")
-            self.stop()
+            self.stop(connection=connection)
             self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
-            self.start()
+            self.start(connection=connection, restart=True)
 

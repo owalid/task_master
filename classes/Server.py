@@ -87,9 +87,9 @@ class Server:
             invalid_job_name = job_name not in jobs_name
             invalid_command = command not in ALLOWED_COMMANDS
             if invalid_job_name:
-                send_result_command("Invalid job name.", self.connection)
+                send_result_command(self.connection, "Invalid job name.")
             elif invalid_command:
-                send_result_command("Invalid command.", self.connection)
+                send_result_command(self.connection, "Invalid command.")
             else:
                 self.send_command(job_name, command)
         return
@@ -99,15 +99,23 @@ class Server:
         Accept a connection. The socket must be bound to an address and listening for connections.
         '''
         try:
-            self.server.listen()
-            self.connection, _ = self.server.accept()
             while True:
-                self.connection.setblocking(True)
-                data = self.connection.recv(1024)
-                self.parse_data_received(data.decode())
-                for job in self.jobs:
-                    if job.process.poll() is not None:
-                        job.last_exit_code = job.process.returncode
+                self.server.listen()
+                self.connection, _ = self.server.accept()
+                while True:
+                    self.connection.setblocking(True)
+                    try:
+                        data = self.connection.recv(1024)
+                    except:
+                        break
+                    if not data:
+                        break
+                    self.parse_data_received(data.decode())
+
+                    # Check for all processes if they are still running
+                    for job in self.jobs:
+                        if job.process.poll() is not None:
+                            job.last_exit_code = job.process.returncode
         except KeyboardInterrupt:
             print('')
             self.close()
@@ -150,9 +158,9 @@ class Server:
         job = self.get_job_from_name(self.jobs, job_name)
 
         if job == None:
-            return "Job not found."
+            return send_result_command(self.connection, "Job not found.")
         if hasattr(job, cmd_name) and callable(job_function := getattr(job, cmd_name)):
             # get the function corresponding to the command from the job object
             # Example: if cmd_name == "status", then job_function = job.status
             return job_function(self.connection)
-        return "command not found."
+        return send_result_command(self.connection, "command not found.")
