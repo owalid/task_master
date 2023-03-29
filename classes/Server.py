@@ -71,10 +71,21 @@ class Server:
         '''
         if data:
             data_splitted = data.split(" ")
+
+            # if we receive only kill
+            if data_splitted[0] == "kill" and len(data_splitted) < 2:
+                data_splitted.append("")
+
             if len(data_splitted) < 2:
-                self.send("Invalid command.")
+                send_result_command(self.connection, "Invalid command.")
                 return
+            
             command, job_name = data_splitted[0], data_splitted[1]
+            if command == "kill":
+                self.stop_all_jobs()
+                print('')
+                self.close()
+                exit(0)
 
             #! NEED TO REMOVE ONLY FOR DEBUG / TEST PURPOSE
             print(f"command: {command}, job_name: {job_name}")
@@ -150,6 +161,15 @@ class Server:
             if job.autostart == True and job_state != PROCESS_STATUS.RUNNING.value \
             and job_state != PROCESS_STATUS.STARTED.value and job_state != PROCESS_STATUS.RESTARTED.value:
                 job.start()
+
+    def stop_all_jobs(self):
+        '''
+        Stop all jobs
+        '''
+        for job in self.jobs:
+            job_state = job.get_state()
+            if job_state != PROCESS_STATUS.STOPPED.value:
+                job.stop()
 
     def send_command(self, job_name, cmd_name):
         '''
