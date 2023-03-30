@@ -64,6 +64,14 @@ class Server:
         Bind the socket to address.
         '''
         self.server.bind(SOCK_FILE)
+    
+    def list_jobs(self):
+        '''
+        List all jobs.
+        '''
+        jobs_name = [job.name for job in self.jobs]
+        jobs_name = "\n".join(jobs_name)
+        send_result_command(self.connection, jobs_name)
 
     def parse_data_received(self, data):
         '''
@@ -73,7 +81,7 @@ class Server:
             data_splitted = data.split(" ")
 
             # if we receive only kill
-            if data_splitted[0] == "kill" and len(data_splitted) < 2:
+            if (data_splitted[0] == "kill" or data_splitted[0] == "list") and len(data_splitted) < 2:
                 data_splitted.append("")
 
             if len(data_splitted) < 2:
@@ -86,6 +94,10 @@ class Server:
                 print('')
                 self.close()
                 exit(0)
+            elif command == "list":
+                print("list")
+                self.list_jobs()
+                return
 
             #! NEED TO REMOVE ONLY FOR DEBUG / TEST PURPOSE
             print(f"command: {command}, job_name: {job_name}")

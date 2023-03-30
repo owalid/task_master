@@ -1,4 +1,5 @@
 from datetime import datetime
+import sys
 from utils.command import send_result_command
 import socket
 import os
@@ -53,6 +54,11 @@ class Job:
         self.date_of_last_status_change = datetime.now().ctime()
         self.last_exit_code = 0
 
+    def __copy__(self):
+        return Job(self.name, self.cmd, self.user, self.numprocs, self.umask, self.workingdir, self.autostart,
+        self.autorestart, self.exitcodes, self.startretries, self.starttime, self.stopsignal, self.stoptime,
+        self.redirectstdout, self.stdout, self.redirectstderr, self.stderr, self.env)
+    
     def print_conf(self):
         print("Name : "  + self.name)
         print("Command : " + self.cmd)
@@ -137,11 +143,14 @@ class Job:
                             if connection != None and isinstance(connection, socket.socket):
                                 connection.settimeout(self.starttime)
                             self.set_status(PROCESS_STATUS.RUNNING.value, connection)
-                        except Exception as e:
-                            print(e)
+                        except:
+                            _, ex_value, _ = sys.exc_info()
+                            print(f"Error while starting {self.name}")
+                            print(ex_value, end="\n\n")
                             return self.restart(connection)
             except OSError as e:
-                print(e)
+                _, ex_value, _ = sys.exc_info()
+                print(ex_value)
                 return self.restart(connection)
         else:
             return self.set_status(PROCESS_STATUS.EXCITED.value, connection)
@@ -156,12 +165,13 @@ class Job:
         signal_value = signal.Signals.__dict__.get(self.stopsignal)
         if not signal_value:
             signal_value = signal.SIGKILL
-        pid = self.process.pid
-        try:
-            os.kill(pid, signal_value)
-        except ProcessLookupError:
-            send_result_command(connection, f"Error: process {self.name} is not running")
-            return
+        if self.process != None:
+            pid = self.process.pid
+            try:
+                os.kill(pid, signal_value)
+            except ProcessLookupError:
+                send_result_command(connection, f"Error: process {self.name} is not running")
+                return
         self.set_status(PROCESS_STATUS.STOPPED.value, connection)
 
     def restart(self, connection=None):
@@ -179,8 +189,6 @@ class Job:
             else:
                 self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         else:
-            #for debugging purpose only
-            print("autorestart == true")
             self.stop(connection=connection)
             self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
             self.start(connection=connection, restart=True)

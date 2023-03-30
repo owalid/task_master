@@ -121,5 +121,12 @@ def parse_job_conf_file(conf_path):
                 setattr(current_job, key, value)
             current_job.stderr = '/dev/null' if current_job.redirectstderr == False else current_job.stderr
             current_job.stdout = '/dev/null' if current_job.redirectstdout == False else current_job.stdout
-            list_of_jobs.append(current_job)
+            if current_job.numprocs > 1:
+                original_job = current_job.__copy__()
+                for i in range(current_job.numprocs):
+                    current_job.name = f"{current_job.name}_{i}"
+                    list_of_jobs.append(current_job)
+                    current_job = original_job.__copy__()
+            else:
+                list_of_jobs.append(current_job)
     return False if len(list_of_jobs) == 0 else list_of_jobs
