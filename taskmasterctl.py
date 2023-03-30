@@ -28,6 +28,16 @@ if __name__ == "__main__":
             # Parse commands
             (cmd_parsed, arguments) = parse_command(cmd)
 
+            if cmd_parsed == 'kill':
+                res = input("Are you sure you want to kill all processes and taskmaster? (Y/n)")
+                res = res.lower()
+
+                if res == 'y' or res == 'yes' or res == '':
+                    print("Killing all processes and taskmaster...")
+                    client.send(f"kill")
+                    print("Bye")
+                    exit(0)
+
             if cmd_parsed == False: # invalid command
                 print(f"*** Unknown syntax: {cmd}")
                 continue
