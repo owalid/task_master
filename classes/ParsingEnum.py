@@ -52,6 +52,8 @@ class ALLOWED_COMMANDS(BaseEnum):
     RESTART='restart'
     KILL='kill'
     LIST='list'
+    ATTACH='attach'
+    DETACH='detach'
 
 class PROCESS_STATUS(BaseEnum):
     NOTSTARTED="Not started"

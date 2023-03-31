@@ -10,6 +10,7 @@ class Client:
                 print(f"unix://{SOCK_FILE} no such file")
             else:
                 self.client_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                self.client_socket.settimeout(1)
                 self.connect()
         except ConnectionRefusedError:
             print(f"Connection refused: unix://{SOCK_FILE}")
@@ -36,6 +37,8 @@ class Client:
         except ConnectionResetError:
             print("Connection reset by peer")
             exit(1)
+        except socket.timeout:
+            return
 
     def close(self):
         if self.client_socket != None:
