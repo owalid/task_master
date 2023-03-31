@@ -15,7 +15,7 @@ programs:
     stoptime: 10
     redirectstdout: true
     stdout: /tmp/php.stdout
-    redirectstderr: true
+    redirectstderr: false
     stderr: /tmp/php.stderr
     env:
       STARTED_BY: taskmaster

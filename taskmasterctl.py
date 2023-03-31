@@ -59,7 +59,7 @@ if __name__ == "__main__":
                 client = Client()
             if client.client_socket != None: # If connected send command to server
                 # todo: process arguments according to command and server
-                if (cmd_parsed != 'attach'):
+                if (cmd_parsed != ALLOWED_COMMANDS.ATTACH.value):
                     client.send(f"{cmd_parsed} {arguments}")
                     print(client.receive())
                 else :

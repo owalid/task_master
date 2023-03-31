@@ -134,8 +134,8 @@ class Job:
             try:
                 self.process = subprocess.Popen(cmd_split,
                                 env=dict(self.env),
-                                stdout=open(self.stdout, 'w') if self.stdout != '' else subprocess.PIPE,
-                                stderr=open(self.stderr, 'w') if self.stderr != '' else subprocess.PIPE,
+                                stdout=open(self.stdout, 'w') if self.stdout else subprocess.PIPE,
+                                stderr=open(self.stderr, 'w') if self.stderr else subprocess.PIPE,
                                 cwd=self.workingdir,
                                 umask=self.umask
                 )
@@ -172,12 +172,10 @@ class Job:
     def restart(self, connection=None):
         self.startretries -= 1
         if self.autorestart == False:
-            print("autorestart == false")
             self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         elif self.autorestart == RESTART_VALUES.UNEXPECTED.value:
             if self.last_exit_code not in self.exitcodes:
                 #for debugging purpose only
-                print(f"The exit code is not expected : {str(self.last_exit_code)}")
                 self.stop(connection=connection)
                 self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
                 self.start(connection=connection, restart=True)
@@ -196,6 +194,10 @@ class Job:
                 self.attachMode = True
                 pid = os.fork()
                 if pid > 0:
+                    if self.stdout != '':
+                        self.stdoutFileForAttachMode.close()
+                    if self.stderr != '':
+                        self.stderrFileForAttachMode.close()
                     return
                 elif pid == 0:
                     while self.attachMode:
