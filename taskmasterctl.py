@@ -1,5 +1,11 @@
 from classes.Client import Client
 from utils.command import parse_command
+from classes.ParsingEnum import ALLOWED_COMMANDS
+import signal
+
+def signal_handler(signal, frame):
+    global detachMode
+    detachMode = True
 
 def clean_exit(client):
     client.close()
@@ -53,8 +59,22 @@ if __name__ == "__main__":
                 client = Client()
             if client.client_socket != None: # If connected send command to server
                 # todo: process arguments according to command and server
-                client.send(f"{cmd_parsed} {arguments}")
-                print(client.receive())
+                if (cmd_parsed != ALLOWED_COMMANDS.ATTACH.value):
+                    client.send(f"{cmd_parsed} {arguments}")
+                    print(client.receive())
+                else :
+                    client.send(f"{cmd_parsed} {arguments}")
+                    signal.signal(signal.SIGINT, signal_handler)
+                    detachMode = False
+                    print("Press Ctrl + c to quit attach mode")
+                    while True:
+                        data = client.receive()
+                        if (data is not None):
+                            print(data)
+                        if detachMode == True:
+                            break
+                    client.send(f"{ALLOWED_COMMANDS.DETACH.value} {arguments}")
+                    print(client.receive())
         except KeyboardInterrupt:
             print('')
             clean_exit(client)

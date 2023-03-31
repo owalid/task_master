@@ -6,7 +6,7 @@ import os
 import signal
 from colorama import Fore, Style
 from classes.ParsingEnum import RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS
-import shlex, subprocess, uuid, base64
+import shlex, subprocess, uuid, base64, select
 
 class Job:
     """Job is a class that contains all the required and optional options to do a job inside taskmaster's main program."""
@@ -53,12 +53,15 @@ class Job:
         self.old_state = PROCESS_STATUS.UNKNOWN.value
         self.date_of_last_status_change = datetime.now().ctime()
         self.last_exit_code = 0
+        self.attachMode = False
+        self.stdoutFileForAttachMode = None
+        self.stderrFileForAttachMode = None
 
     def __copy__(self):
         return Job(self.name, self.cmd, self.user, self.numprocs, self.umask, self.workingdir, self.autostart,
         self.autorestart, self.exitcodes, self.startretries, self.starttime, self.stopsignal, self.stoptime,
         self.redirectstdout, self.stdout, self.redirectstderr, self.stderr, self.env)
-    
+
     def print_conf(self):
         print("Name : "  + self.name)
         print("Command : " + self.cmd)
@@ -129,28 +132,20 @@ class Job:
         if self.startretries != -1:
             cmd_split = shlex.split(self.cmd)
             try:
-                print(f"CMD = {self.cmd}")
-                with open(self.stdout, 'w') as f_out:
-                    with open(self.stderr, 'w') as f_err:
-                        try:
-                            self.process = subprocess.Popen(cmd_split,
-                                            env=dict(self.env),
-                                            stdout=open(self.stdout, 'w'),
-                                            stderr=open(self.stderr, 'w'),
-                                            cwd=self.workingdir,
-                                            umask=self.umask
-                            )
-                            if connection != None and isinstance(connection, socket.socket):
-                                connection.settimeout(self.starttime)
-                            self.set_status(PROCESS_STATUS.RUNNING.value, connection)
-                        except:
-                            _, ex_value, _ = sys.exc_info()
-                            print(f"Error while starting {self.name}")
-                            print(ex_value, end="\n\n")
-                            return self.restart(connection)
-            except OSError as e:
+                self.process = subprocess.Popen(cmd_split,
+                                env=dict(self.env),
+                                stdout=open(self.stdout, 'w') if self.stdout else subprocess.PIPE,
+                                stderr=open(self.stderr, 'w') if self.stderr else subprocess.PIPE,
+                                cwd=self.workingdir,
+                                umask=self.umask
+                )
+                if connection != None and isinstance(connection, socket.socket):
+                    connection.settimeout(self.starttime)
+                self.set_status(PROCESS_STATUS.RUNNING.value, connection)
+            except:
                 _, ex_value, _ = sys.exc_info()
-                print(ex_value)
+                print(f"Error while starting {self.name}")
+                print(ex_value, end="\n\n")
                 return self.restart(connection)
         else:
             return self.set_status(PROCESS_STATUS.EXCITED.value, connection)
@@ -161,7 +156,7 @@ class Job:
         if connection != None and isinstance(connection, socket.socket):
             connection.settimeout(self.stoptime)
 
-        
+
         signal_value = signal.Signals.__dict__.get(self.stopsignal)
         if not signal_value:
             signal_value = signal.SIGKILL
@@ -177,12 +172,10 @@ class Job:
     def restart(self, connection=None):
         self.startretries -= 1
         if self.autorestart == False:
-            print("autorestart == false")
             self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         elif self.autorestart == RESTART_VALUES.UNEXPECTED.value:
             if self.last_exit_code not in self.exitcodes:
                 #for debugging purpose only
-                print(f"The exit code is not expected : {str(self.last_exit_code)}")
                 self.stop(connection=connection)
                 self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
                 self.start(connection=connection, restart=True)
@@ -193,3 +186,52 @@ class Job:
             self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
             self.start(connection=connection, restart=True)
 
+    def attach(self, connection=None):
+        if self.attachMode == False:
+            try:
+                self.stderrFileForAttachMode = open(self.stderr, 'r') if self.stderr else self.process.stderr
+                self.stdoutFileForAttachMode = open(self.stdout, 'r') if self.stdout else self.process.stdout
+                self.attachMode = True
+                pid = os.fork()
+                if pid > 0:
+                    if self.stdout:
+                        self.stdoutFileForAttachMode.close()
+                    if self.stderr:
+                        self.stderrFileForAttachMode.close()
+                    return
+                elif pid == 0:
+                    while self.attachMode:
+                        r, _, _ = select.select([self.stdoutFileForAttachMode.fileno(), self.stderrFileForAttachMode.fileno()], [], [])
+                        for fds in r:
+                            if fds == self.stderrFileForAttachMode.fileno():
+                                if not self.stderr:
+                                    datas = self.stderrFileForAttachMode.readline()
+                                    send_result_command(connection, datas.decode())
+                                else:
+                                    datas = (self.stderrFileForAttachMode.readlines()[-20:])
+                                    for line in datas:
+                                        send_result_command(connection, line)
+                            if fds == self.stdoutFileForAttachMode.fileno():
+                                if not self.stdout:
+                                    datas = self.stdoutFileForAttachMode.readline()
+                                    send_result_command(connection, datas.decode())
+                                else:
+                                    datas = (self.stdoutFileForAttachMode.readlines()[-20:])
+                                    for line in datas:
+                                        send_result_command(connection, line)
+            except Exception as e:
+                print(f"Error : {e}")
+        else:
+            data = "Attach Mode is already running."
+            send_result_command(connection, data)
+
+    def detach(self, connection=None):
+        try:
+            if self.stdout:
+                self.stdoutFileForAttachMode.close()
+            if self.stderr:
+                self.stderrFileForAttachMode.close()
+            self.attachMode = False
+            send_result_command(connection, "Quitting attach mode.")
+        except Exception as e:
+            print(f"Error : {e}")

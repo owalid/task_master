@@ -119,8 +119,8 @@ def parse_job_conf_file(conf_path):
                     print(f"{key} must be sets to true, false or unexpected.")
                     return False
                 setattr(current_job, key, value)
-            current_job.stderr = '/dev/null' if current_job.redirectstderr == False else current_job.stderr
-            current_job.stdout = '/dev/null' if current_job.redirectstdout == False else current_job.stdout
+            current_job.stderr = '' if current_job.redirectstderr == False else current_job.stderr
+            current_job.stdout = '' if current_job.redirectstdout == False else current_job.stdout
             if current_job.numprocs > 1:
                 original_job = current_job.__copy__()
                 for i in range(current_job.numprocs):
