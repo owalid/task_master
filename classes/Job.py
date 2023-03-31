@@ -189,14 +189,14 @@ class Job:
     def attach(self, connection=None):
         if self.attachMode == False:
             try:
-                self.stderrFileForAttachMode = open(self.stderr, 'r') if self.stderr != '' else self.process.stderr
-                self.stdoutFileForAttachMode = open(self.stdout, 'r') if self.stdout != '' else self.process.stdout
+                self.stderrFileForAttachMode = open(self.stderr, 'r') if self.stderr else self.process.stderr
+                self.stdoutFileForAttachMode = open(self.stdout, 'r') if self.stdout else self.process.stdout
                 self.attachMode = True
                 pid = os.fork()
                 if pid > 0:
-                    if self.stdout != '':
+                    if self.stdout:
                         self.stdoutFileForAttachMode.close()
-                    if self.stderr != '':
+                    if self.stderr:
                         self.stderrFileForAttachMode.close()
                     return
                 elif pid == 0:
@@ -204,7 +204,7 @@ class Job:
                         r, _, _ = select.select([self.stdoutFileForAttachMode.fileno(), self.stderrFileForAttachMode.fileno()], [], [])
                         for fds in r:
                             if fds == self.stderrFileForAttachMode.fileno():
-                                if self.stderr == '':
+                                if self.stderr:
                                     datas = self.stderrFileForAttachMode.readline()
                                     send_result_command(connection, datas.decode())
                                 else:
@@ -212,7 +212,7 @@ class Job:
                                     for line in datas:
                                         send_result_command(connection, line)
                             if fds == self.stdoutFileForAttachMode.fileno():
-                                if self.stdout == '':
+                                if self.stdout:
                                     datas = self.stdoutFileForAttachMode.readline()
                                     send_result_command(connection, datas.decode())
                                 else:
@@ -227,9 +227,9 @@ class Job:
 
     def detach(self, connection=None):
         try:
-            if self.stdout != '':
+            if self.stdout:
                 self.stdoutFileForAttachMode.close()
-            if self.stderr != '':
+            if self.stderr:
                 self.stderrFileForAttachMode.close()
             self.attachMode = False
             send_result_command(connection, "Quitting attach mode.")
