@@ -51,6 +51,7 @@ class ALLOWED_COMMANDS(BaseEnum):
     STOP='stop'
     RESTART='restart'
     KILL='kill'
+    LIST='list'
 
 class PROCESS_STATUS(BaseEnum):
     NOTSTARTED="Not started"

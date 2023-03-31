@@ -37,6 +37,10 @@ if __name__ == "__main__":
                     client.send(f"kill")
                     print("Bye")
                     exit(0)
+            if cmd_parsed == 'list':
+                client.send(f"list")
+                print(client.receive())
+                continue
 
             if cmd_parsed == False: # invalid command
                 print(f"*** Unknown syntax: {cmd}")

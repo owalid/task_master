@@ -1,0 +1,23 @@
+programs:
+  date:
+    cmd: "bash -c 'while true; do echo $(date); sleep 1; done'"
+    numprocs: 3
+    umask: 022
+    workingdir: /tmp
+    autostart: true
+    autorestart: true
+    exitcodes:
+      - 0
+      - 2
+    startretries: 3
+    starttime: 5
+    stoptime: 10
+    redirectstdout: true
+    stdout: /tmp/echo.stdout
+    redirectstderr: false
+    stderr: /tmp/echo.stderr
+    stopsignal: SIGKILL
+taskmasteroptions:
+  rootwarn: false
+eventlistener:
+  activated: false
