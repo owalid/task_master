@@ -45,10 +45,11 @@ class Job:
         self.redirectstderr = redirectstderr
         if self.redirectstderr == True and stderr == None:
             self.stderr = '/tmp/' + self.name + '.stderr'
-        elif  self.redirectstderr == False:
+        elif self.redirectstderr == False:
             self.stderr = '/dev/null'
-        else :
+        else:
             self.stderr = stderr
+       
         self.state = PROCESS_STATUS.NOTSTARTED.value
         self.old_state = PROCESS_STATUS.UNKNOWN.value
         self.date_of_last_status_change = datetime.now().ctime()
@@ -61,6 +62,17 @@ class Job:
         return Job(self.name, self.cmd, self.user, self.numprocs, self.umask, self.workingdir, self.autostart,
         self.autorestart, self.exitcodes, self.startretries, self.starttime, self.stopsignal, self.stoptime,
         self.redirectstdout, self.stdout, self.redirectstderr, self.stderr, self.env)
+    
+    def safe_open_std(self, filename, mode):
+        '''
+            Open a file in write mode and create the directory if it doesn't exist
+            return the file descriptor
+        '''
+        # Create the directory if it doesn't exist
+        if os.path.exists(os.path.dirname(filename)) == False:
+            os.makedirs(os.path.dirname(filename))
+        return open(filename, mode)
+
 
     def print_conf(self):
         print("Name : "  + self.name)
@@ -134,8 +146,8 @@ class Job:
             try:
                 self.process = subprocess.Popen(cmd_split,
                                 env=dict(self.env),
-                                stdout=open(self.stdout, 'w') if self.stdout else subprocess.PIPE,
-                                stderr=open(self.stderr, 'w') if self.stderr else subprocess.PIPE,
+                                stdout=self.safe_open_std(self.stdout, 'w+') if self.stdout else subprocess.PIPE,
+                                stderr=self.safe_open_std(self.stderr, 'w+') if self.stderr else subprocess.PIPE,
                                 cwd=self.workingdir,
                                 umask=self.umask
                 )

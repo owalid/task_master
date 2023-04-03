@@ -69,7 +69,10 @@ if __name__ == "__main__":
 
     if args.kill:
         # get pid of taskmaster
-        with open("/tmp/taskmaster.pid", "r") as f:
+        if not os.path.exists(PID_FILE):
+            print(ERRORS.PID_FILE_NOT_FOUND.value)
+            exit(1)
+        with open(PID_FILE, "r") as f:
             pid = f.read()
         name = get_pname(int(pid))
 

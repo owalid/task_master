@@ -14,9 +14,9 @@ programs:
     stoptime: 10
     stopsignal: SIGTERM
     redirectstdout: true
-    stdout: /tmp/nginx.stdout
+    stdout: /tmp/lol/lol/lool/dssdds/nginx.stdout
     redirectstderr: false
-    stderr: /tmp/nginx.stderr
+    stderr: /tmp/dsdsdsd/sdsldsldskd/dldddslds.stderr
     env:
       STARTED_BY: taskmaster
       ANSWER: 42

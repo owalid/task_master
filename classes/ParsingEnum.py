@@ -100,6 +100,7 @@ class ERRORS(BaseEnum):
     CONF_FILE_BAD_KEY_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} The following key is not allowed: '
     CONF_FILE_BAD_VALUE_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} The following value is not allowed: '
     CONF_FILE_NO_SUCH_USER=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} The following user does not exist: '
+    PID_FILE_NOT_FOUND=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} The pid file could not be found.'
 
 
 # These options are to complex to implement for now.
