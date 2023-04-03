@@ -18,9 +18,17 @@ class Client:
             exit(1)
 
     def connect(self):
+        '''
+        Connect to the server according to the socket file.
+        return: None
+        '''
         self.client_socket.connect(SOCK_FILE)
 
     def send(self, data):
+        '''
+        Send data to the server.
+        return: None
+        '''
         print(data)
         try:
             self.client_socket.send(data.encode())
@@ -32,6 +40,10 @@ class Client:
             exit(1)
 
     def receive(self):
+        '''
+        Receive data from the server.
+        return: None
+        '''
         try:
             data = self.client_socket.recv(1024)
             return data.decode()
@@ -42,5 +54,9 @@ class Client:
             return
 
     def close(self):
+        '''
+        Close the socket.
+        return: None
+        '''
         if self.client_socket != None:
             self.client_socket.close()

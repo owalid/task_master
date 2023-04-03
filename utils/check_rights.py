@@ -4,6 +4,10 @@ from colorama import *
 from classes.ParsingEnum import ERRORS
 
 def check_rights_and_user(jobs, taskmaster_options, accept_default=False):
+    '''
+    Check if the user is root and if the user field is set in the job(s). If the user field is not set, the user will be asked if he wants to continue.
+    return: None
+    '''
     if os.getuid() == 0 and taskmaster_options.rootwarn == True:
         job_without_userfield = []
         for job in jobs:

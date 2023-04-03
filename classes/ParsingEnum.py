@@ -11,7 +11,6 @@ class MetaEnum(EnumMeta):
             return False
         return True
 
-
 class BaseEnum(Enum, metaclass=MetaEnum):
     pass
 
