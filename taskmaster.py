@@ -7,7 +7,7 @@ from classes.Server import Server
 from argparse import RawTextHelpFormatter
 from utils.parsing_conf import parse_job_conf_file, parse_taskmaster_options_conf_file, parse_event_listener_options_conf_file
 from utils.check_rights import check_rights_and_user
-
+from classes.ParsingEnum import ERRORS
 
 PID_FILE = "/tmp/taskmaster.pid"
 
@@ -34,7 +34,7 @@ def daemonize():
         if os.fork() > 0:
             exit(0)
     except OSError as err:
-        print(f"Fork error: {err}")
+        print(f"{ERRORS.FORK_ERROR.value}{err}")
         exit(1)
 
     os.chdir('/') # change directory to root
@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
         # protect against killing other process
         if not name.startswith("python3 taskmaster.py") and not name.startswith("python taskmaster.py") and not name.startswith("taskmaster.py"):
-            print("Pid not corresponding to taskmaster")
+            print(ERRORS.PID_ERROR.value)
             exit(1)
 
         try:
@@ -83,7 +83,7 @@ if __name__ == "__main__":
             print("Taskmaster killed")
             code = 0
         except:
-            print("Taskmaster is not running")
+            print(ERRORS.TM_NOT_RUNNING_ERROR.value)
             code = 1
         exit(code)
 
@@ -91,19 +91,19 @@ if __name__ == "__main__":
     conf_path = args.conf
     jobs = parse_job_conf_file(conf_path)
     if jobs == False:
-        print("Error while loading the configuration file.")
+        print(ERRORS.CONF_FILE_LOADING_ERROR.value)
         exit(1)
     taskmaster_options = parse_taskmaster_options_conf_file(conf_path)
     if taskmaster_options == False:
-        print("Error while loading the configuration file.")
+        print(ERRORS.CONF_FILE_LOADING_ERROR.value)
         exit(1)
     event_listener_options = parse_event_listener_options_conf_file(conf_path)
     if event_listener_options == False:
-        print("Error while loading the configuration file.")
+        print(ERRORS.CONF_FILE_LOADING_ERROR.value)
         exit(1)
     check_rights_and_user(jobs, taskmaster_options, accept_default=args.default)
     server = Server(jobs, event_listener_options)
-    
+
     # write pid of taskmaster in /tmp/taskmaster.pid
     if os.path.exists(PID_FILE):
         os.remove(PID_FILE)
