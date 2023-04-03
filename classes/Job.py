@@ -5,7 +5,7 @@ import socket
 import os
 import signal
 from colorama import Fore, Style
-from classes.ParsingEnum import RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS
+from classes.ParsingEnum import ERRORS, RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS
 import shlex, subprocess, uuid, base64, select
 
 class Job:
@@ -123,7 +123,7 @@ class Job:
                 raw_log.write(log)
             raw_log.close()
         except Exception as e:
-            print(f"The logs could'nt be wrote : {e}")
+            print(f"{ERRORS.LOG_ERROR.value}{e}")
 
     def start(self, connection=None, restart=False):
         if self.state == PROCESS_STATUS.RUNNING.value and restart == False:
@@ -144,7 +144,7 @@ class Job:
                 self.set_status(PROCESS_STATUS.RUNNING.value, connection)
             except:
                 _, ex_value, _ = sys.exc_info()
-                print(f"Error while starting {self.name}")
+                print(f"{ERRORS.PROCESS_FAILED_TO_START_ERROR.value}{self.name}")
                 print(ex_value, end="\n\n")
                 return self.restart(connection)
         else:
@@ -192,6 +192,7 @@ class Job:
                 self.stderrFileForAttachMode = open(self.stderr, 'r') if self.stderr else self.process.stderr
                 self.stdoutFileForAttachMode = open(self.stdout, 'r') if self.stdout else self.process.stdout
                 self.attachMode = True
+                self.set_status(PROCESS_STATUS.ATTACHED.value, connection)
                 pid = os.fork()
                 if pid > 0:
                     if self.stdout:
@@ -219,11 +220,14 @@ class Job:
                                     datas = (self.stdoutFileForAttachMode.readlines()[-20:])
                                     for line in datas:
                                         send_result_command(connection, line)
+            except OSError as e:
+                self.set_status(PROCESS_STATUS.DETACHED.value, connection)
+                print(f'{ERRORS.FORK_ERROR.value}{e}')
             except Exception as e:
-                print(f"Error : {e}")
+                self.set_status(PROCESS_STATUS.DETACHED.value, connection)
+                print(f"{ERRORS.GENERIC_ERROR.value}{e}")
         else:
-            data = "Attach Mode is already running."
-            send_result_command(connection, data)
+            send_result_command(connection, ERRORS.ATTACHED_MODE_ALREADY_RUNNING_ERROR.value)
 
     def detach(self, connection=None):
         try:
@@ -232,6 +236,7 @@ class Job:
             if self.stderr:
                 self.stderrFileForAttachMode.close()
             self.attachMode = False
+            self.set_status(PROCESS_STATUS.DETACHED.value, connection)
             send_result_command(connection, "Quitting attach mode.")
         except Exception as e:
-            print(f"Error : {e}")
+            print(f"{ERRORS.GENERIC_ERROR.value}{e}")

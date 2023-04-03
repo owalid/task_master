@@ -1,6 +1,8 @@
 import os
 from colorama import *
 
+from classes.ParsingEnum import ERRORS
+
 def check_rights_and_user(jobs, taskmaster_options, accept_default=False):
     if os.getuid() == 0 and taskmaster_options.rootwarn == True:
         job_without_userfield = []
@@ -45,7 +47,7 @@ def check_rights_and_user(jobs, taskmaster_options, accept_default=False):
                     print(f"{Fore.GREEN}{Style.BRIGHT}The program will exit. Bye.{Style.RESET_ALL}")
                     exit(0)
         else:
-            print(f"{Back.RED}{Style.BRIGHT}[ERROR]{Back.RED}{Style.BRIGHT} Something went wrong. The program will exit.{Style.RESET_ALL}")
+            print(ERRORS.GENERIC_HARD_ERROR.value)
             exit(1)
     elif os.getuid() == 0 and taskmaster_options.rootwarn == False:
         for job in jobs:

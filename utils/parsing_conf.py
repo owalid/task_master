@@ -1,7 +1,7 @@
 #parsing_conf.py
 import yaml
 from classes.Job import Job
-from classes.ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS, STOP_SIGNAL, RESTART_VALUES
+from classes.ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS, ERRORS, STOP_SIGNAL, RESTART_VALUES
 import pwd
 from classes.TaskmasterOptions import TaskmasterOptions
 from classes.EventManagerOptions import EventManagerOptions
@@ -33,20 +33,20 @@ def parse_event_listener_options_conf_file(conf_path):
         with open(conf_path, 'r') as conf_file:
             conf_file_loaded = yaml.safe_load(conf_file)
     except:
-        print("The configuration file at " + conf_path +  " could not be loaded.")
+        print(ERRORS.CONF_FILE_LOADING_ERROR.value)
         return False
     for name_cat, config in conf_file_loaded.items():
         if name_cat not in ALLOWED_CATEGORIES:
-            print(f"{name_cat} is not an allowed category for the configuration file.")
+            print(f"{ERRORS.CONF_FILE_BAD_CATEGORY_ERROR.value}{name_cat}")
             return False
         if name_cat != ALLOWED_CATEGORIES.EVENTLISTENER.value:
             continue
         for option, value in config.items():
             if option not in ALLOWED_EL_OPTIONS:
-                print(f"{option} is not an allowed option for {name_cat}.")
+                print(f"{ERRORS.CONF_FILE_BAD_OPTION_ERROR.value}{option} for category {name_cat}.")
                 return False
             if option == ALLOWED_EL_OPTIONS.ACTIVATED.value and not isinstance(value, bool):
-                print(f"{option} should be a boolean not {value}")
+                print(f"{ERRORS.CONF_FILE_NOT_A_BOOL_ERROR.value}{option}")
                 return False
             setattr(event_listener_options, option, value)
     return event_listener_options
@@ -58,20 +58,20 @@ def parse_taskmaster_options_conf_file(conf_path):
         with open(conf_path, 'r') as conf_file:
             conf_file_loaded = yaml.safe_load(conf_file)
     except:
-        print("The configuration file at " + conf_path +  " could not be loaded.")
+        print(ERRORS.CONF_FILE_LOADING_ERROR.value)
         return False
     for name_cat, config in conf_file_loaded.items():
         if name_cat not in ALLOWED_CATEGORIES:
-            print(f"{name_cat} is not an allowed category for the configuration file.")
+            print(f"{ERRORS.CONF_FILE_BAD_CATEGORY_ERROR.value}{name_cat}")
             return False
         if name_cat != ALLOWED_CATEGORIES.TASKMASTEROPTIONS.value:
             continue
         for option, value in config.items():
             if option not in ALLOWED_TM_OPTIONS:
-                print(f"{option} is not an allowed entry for {name_cat}.")
+                print(f"{ERRORS.CONF_FILE_BAD_OPTION_ERROR.value}{option} for category {name_cat}.")
                 return False
             if option == ALLOWED_TM_OPTIONS.ROOTWARN.value and not isinstance(value, bool):
-                print(f"{option} should be a boolean not {value}")
+                print(ERRORS.CONF_FILE_NOT_A_BOOL_ERROR.value)
                 return False
             setattr(taskmaster_options, option, value)
     return taskmaster_options
@@ -84,11 +84,11 @@ def parse_job_conf_file(conf_path):
         with open(conf_path, 'r') as conf_file:
             conf_file_loaded = yaml.safe_load(conf_file)
     except:
-        print("The configuration file at " + conf_path +  " could not be loaded.")
+        print(ERRORS.CONF_FILE_LOADING_ERROR.value)
         return False
     for name_prg, config in conf_file_loaded.items():
         if name_prg not in ALLOWED_CATEGORIES:
-            print(f"{name_prg} is not an allowed category for the configuration file.")
+            print(f"{ERRORS.CONF_FILE_BAD_CATEGORY_ERROR.value}{name_prg}")
             return False
         if name_prg != ALLOWED_CATEGORIES.PROGRAMS.value:
             continue
@@ -96,27 +96,27 @@ def parse_job_conf_file(conf_path):
             current_job, values = init_default_job(prg, values)
             for key, value in values.items() :
                 if key not in ALLOWED_PROGRAM_ENTRIES:
-                    print(f"\"{key}\" is not an allowed key.")
+                    print(f"{ERRORS.CONF_FILE_BAD_KEY_ERROR.value}\"{key}\"")
                     return False
                 if key == ALLOWED_PROGRAM_ENTRIES.STOPSIGNAL.value and value not in STOP_SIGNAL:
-                    print(f"{key}: the value {value} is not allowed for this entry. See Help Page.")
+                    print(f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{value} for {key}")
                     return False
                 if key == ALLOWED_PROGRAM_ENTRIES.UMASK.value and (value > 511 or value < 0):
-                    print(f"{key} should be at least less or equal to 777 and greater than 0.")
+                    print(f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{value} for {key}")
                     return False
                 if key == ALLOWED_PROGRAM_ENTRIES.REDIRECTSTDOUT.value and not isinstance(value, bool) \
                 or key == ALLOWED_PROGRAM_ENTRIES.REDIRECTSTDERR.value and not isinstance(value, bool):
-                    print(f"{key} should be a boolean not {value}.")
+                    print(f"{ERRORS.CONF_FILE_NOT_A_BOOL_ERROR.value}{key}")
                     return False
                 if key == ALLOWED_PROGRAM_ENTRIES.USER.value:
                     if check_if_user_exists(value) == False:
-                        print(f"The user {value} does'nt exist or is not permitted. Please put a valid user.")
+                        print(f"{ERRORS.CONF_FILE_NO_SUCH_USER.value}{value}")
                         return False
                 if key == ALLOWED_PROGRAM_ENTRIES.AUTOSTART.value and not isinstance(value, bool):
-                    print(f"{key} must be a boolean value.")
+                    print(f"{ERRORS.CONF_FILE_NOT_A_BOOL_ERROR.value}{key}")
                     return False
                 if key == ALLOWED_PROGRAM_ENTRIES.AUTORESTART.value and value not in RESTART_VALUES:
-                    print(f"{key} must be sets to true, false or unexpected.")
+                    print(f"{ERRORS.CONF_FILE_BAD_KEY_ERROR.value}{key}")
                     return False
                 setattr(current_job, key, value)
             current_job.stderr = '' if current_job.redirectstderr == False else current_job.stderr

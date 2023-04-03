@@ -1,6 +1,6 @@
 from classes.Client import Client
 from utils.command import parse_command
-from classes.ParsingEnum import ALLOWED_COMMANDS
+from classes.ParsingEnum import ALLOWED_COMMANDS, ERRORS
 import signal
 
 def signal_handler(signal, frame):
@@ -23,7 +23,6 @@ if __name__ == "__main__":
     while True:
         try:
             cmd = input("taskmaster> ")
-
             # Parse help, exit and quit command
             if cmd == 'help':
                 display_help()
@@ -49,10 +48,10 @@ if __name__ == "__main__":
                 continue
 
             if cmd_parsed == False: # invalid command
-                print(f"*** Unknown syntax: {cmd}")
+                print(f"{ERRORS.UNKNOW_SYNTAX_ERROR.value}{cmd}")
                 continue
             elif not arguments:
-                print("Missing arguments.")
+                print(ERRORS.MISSING_ARGUMENT_ERROR.value)
                 print("<command> <job_name or 'all'>")
                 continue
             elif client.client_socket == None: # Try to connect to server if not connected

@@ -1,6 +1,6 @@
 import socket
 import os, subprocess
-from classes.ParsingEnum import ALLOWED_COMMANDS, PROCESS_STATUS
+from classes.ParsingEnum import ALLOWED_COMMANDS, ERRORS, PROCESS_STATUS
 from utils.command import send_result_command
 
 SOCK_FILE = "/tmp/taskmaster.sock"
@@ -56,15 +56,14 @@ class Server:
                         (["python3", "event_manager/eventmanager.py"],  \
                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except Exception as e:
-            print("[ERROR] The event manager could not be launched.")
-            print(e)
+            print(f'{ERRORS.EVEN_MANAGER_FAILED_ERROR.value}{e}')
 
     def bind(self):
         '''
         Bind the socket to address.
         '''
         self.server.bind(SOCK_FILE)
-    
+
     def list_jobs(self):
         '''
         List all jobs.
@@ -87,7 +86,7 @@ class Server:
             if len(data_splitted) < 2:
                 send_result_command(self.connection, "Invalid command.")
                 return
-            
+
             command, job_name = data_splitted[0], data_splitted[1]
             if command == "kill":
                 self.stop_all_jobs()
@@ -98,14 +97,10 @@ class Server:
                 print("list")
                 self.list_jobs()
                 return
-
-            #! NEED TO REMOVE ONLY FOR DEBUG / TEST PURPOSE
-            print(f"command: {command}, job_name: {job_name}")
             if job_name == "all" and command in ALLOWED_COMMANDS:
                 for job in self.jobs:
                     self.send_command(job.name, command)
                 return
-
             jobs_name = [job.name for job in self.jobs]
             invalid_job_name = job_name not in jobs_name
             invalid_command = command not in ALLOWED_COMMANDS

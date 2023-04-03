@@ -1,23 +1,25 @@
 from Event import Event
 import time, datetime, shutil, os,  yagmail, dotenv, sys
 
+from classes.ParsingEnum import ERRORS
+
 
 def send_mail(filepath):
     env = dotenv.dotenv_values()
     if env == None:
-        print("No .env file. Misconfiguration ?")
+        print(ERRORS.ENV_NOT_FOUND_ERROR.value)
         return
     try:
         mail = env.get("USERMAIL")
         pswd = env.get("PASSWORD")
         if mail == None or pswd == None:
-            print("An argument is empty in .env. Misconfiguration ?")
-            return 
+            print(ERRORS.ENV_ARG_EMPTY_ERROR.value)
+            return
         yag = yagmail.SMTP(mail, pswd)
         print("Connection ok with google server.")
     except Exception as e:
-        print(f"Could not connect to mail {mail} " + e)
-        return 
+        print(f"{ERRORS.EVENT_MANAGER_FAILED_MAIL_CONNECTION_ERROR.value}{mail} {e}")
+        return
     try:
         yag.send(
             to=mail,
@@ -27,7 +29,7 @@ def send_mail(filepath):
             )
         print("File sent\n")
     except Exception as e:
-        print(f'Could not send the mail. ' + e)
+        print(f'{ERRORS.EVENT_MANAGER_FAILED_SENDING_MAIL_ERROR.value}{e}')
 
 def compute_raw_file_logs():
     computed_logs = ""
@@ -49,7 +51,7 @@ def compute_raw_file_logs():
             computed_file.write(computed_logs)
         computed_file.close()
     except Exception as e:
-        print(e)
+        print(f'{ERRORS.GENERIC_ERROR.value}{e}')
     return filepath
 
 def main():
