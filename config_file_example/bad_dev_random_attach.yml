@@ -1,0 +1,26 @@
+programs:
+  php:
+    cmd: "/usr/bin/php -S 0.0.0.0:4242"
+    numprocs: 1
+    umask: 022
+    workingdir: /tmp
+    autostart: true
+    autorestart: true
+    exitcodes:
+      - 0
+      - 2
+    startretries: 3
+    starttime: 5
+    stoptime: 10
+    redirectstdout: true
+    stdout: /dev/random
+    redirectstderr: false
+    stderr: /dev/random
+    env:
+      STARTED_BY: taskmaster
+      ANSWER: 42
+    stopsignal: SIGKILL
+taskmasteroptions:
+  rootwarn: false
+eventlistener:
+  activated: false
