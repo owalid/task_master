@@ -1,4 +1,5 @@
 #parsing_conf.py
+import os
 import yaml
 from classes.Job import Job
 from classes.ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALLOWED_TM_OPTIONS, ALLOWED_EL_OPTIONS, ERRORS, STOP_SIGNAL, RESTART_VALUES
@@ -93,16 +94,27 @@ def parse_job_conf_file(conf_path):
         if name_prg != ALLOWED_CATEGORIES.PROGRAMS.value:
             continue
         for prg, values in config.items():
+            if os.path.exists(values[ALLOWED_PROGRAM_ENTRIES.CMD.value]) == False:
+                print(f"{ERRORS.NO_SUCH_FILE_ERROR.value}{values[ALLOWED_PROGRAM_ENTRIES.CMD.value]}")
+                return False
             current_job, values = init_default_job(prg, values)
             for key, value in values.items() :
                 if key not in ALLOWED_PROGRAM_ENTRIES:
                     print(f"{ERRORS.CONF_FILE_BAD_KEY_ERROR.value}\"{key}\"")
                     return False
+                if key == ALLOWED_PROGRAM_ENTRIES.EXITCODES.value:
+                    for val in value:
+                        if val < 0 or val > 255:
+                            print(f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{val} for {key}")
+                            return False
+                if key == ALLOWED_PROGRAM_ENTRIES.NUMPROCS.value and (value < 1 or value > 10):
+                    print(f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{value} for {key}. Min: 1. Max: 10.")
+                    return False
                 if key == ALLOWED_PROGRAM_ENTRIES.STOPSIGNAL.value and value not in STOP_SIGNAL:
                     print(f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{value} for {key}")
                     return False
                 if key == ALLOWED_PROGRAM_ENTRIES.UMASK.value and (value > 511 or value < 0):
-                    print(f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{value} for {key}")
+                    print(f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{value} for {key}.")
                     return False
                 if key == ALLOWED_PROGRAM_ENTRIES.REDIRECTSTDOUT.value and not isinstance(value, bool) \
                 or key == ALLOWED_PROGRAM_ENTRIES.REDIRECTSTDERR.value and not isinstance(value, bool):
@@ -118,6 +130,16 @@ def parse_job_conf_file(conf_path):
                 if key == ALLOWED_PROGRAM_ENTRIES.AUTORESTART.value and value not in RESTART_VALUES:
                     print(f"{ERRORS.CONF_FILE_BAD_KEY_ERROR.value}{key}")
                     return False
+                if key == ALLOWED_PROGRAM_ENTRIES.STARTRETRIES.value and (value < 0 or value > 10):
+                    print(f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{value} for {key}. Min: 0. Max: 10.")
+                    return False
+                if key == ALLOWED_PROGRAM_ENTRIES.STARTTIME.value and (value < 0 or value > 60):
+                    print(f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{value} for {key}. Min: 0. Max: 60.")
+                    return False
+                if key == ALLOWED_PROGRAM_ENTRIES.STOPTIME.value and (value < 0 or value > 60):
+                    print(f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{value} for {key}. Min: 0. Max: 60.")
+                    return False
+
                 setattr(current_job, key, value)
             current_job.stderr = '' if current_job.redirectstderr == False else current_job.stderr
             current_job.stdout = '' if current_job.redirectstdout == False else current_job.stdout
