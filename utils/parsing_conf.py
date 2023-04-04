@@ -28,13 +28,14 @@ def check_if_user_exists(username):
     return True
 
 def check_types(key, value):
-    if (key == ALLOWED_PROGRAM_ENTRIES.AUTORESTART.value \
-        or key == ALLOWED_PROGRAM_ENTRIES.AUTOSTART.value \
+    if (key == ALLOWED_PROGRAM_ENTRIES.AUTOSTART.value \
         or key == ALLOWED_PROGRAM_ENTRIES.REDIRECTSTDERR.value \
         or key == ALLOWED_PROGRAM_ENTRIES.REDIRECTSTDOUT.value \
         or key == ALLOWED_TM_OPTIONS.ROOTWARN.value \
         or key == ALLOWED_EL_OPTIONS.ACTIVATED.value) \
         and not isinstance(value, bool):
+        return False
+    if key == ALLOWED_PROGRAM_ENTRIES.AUTORESTART.value and (not isinstance(value, bool) and not isinstance(value, str)):
         return False
     if (key == ALLOWED_PROGRAM_ENTRIES.EXITCODES.value):
         if not isinstance(value, list):
