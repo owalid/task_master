@@ -1,0 +1,36 @@
+programs:
+  bad_types:
+    cmd: [/bin/lol]
+    numprocs: ["abc"]
+    umask: ["abc"]
+    workingdir: 
+      - 123
+      - 123
+      - "abc"
+    autostart: ["a"]
+    autorestart: ["q"]
+    exitcodes:
+      - ["a"]
+      - ["a"]
+    startretries: ["abc"]
+    starttime: 
+      - "abc"
+      - "abc"
+      - "abc"
+      - "abc"
+    stoptime:
+      - "abc"
+      - "abc"
+      - "abc"
+    redirectstdout: 
+      - 2
+      - 2
+      - 2
+    stdout: [123]
+    redirectstderr: [2]
+    stderr: [123]
+    stopsignal: false
+taskmasteroptions:
+  rootwarn: "a"
+eventlistener:
+  activated: "A"

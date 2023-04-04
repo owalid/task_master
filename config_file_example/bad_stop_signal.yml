@@ -1,22 +1,26 @@
 programs:
-  nginx:
-    cmd: "/usr/sbin/nginx -c /etc/nginx/test.conf"
+  php:
+    cmd: "/usr/bin/php -S 0.0.0.0:4242"
     numprocs: 1
     umask: 022
     workingdir: /tmp
     autostart: true
-    autorestart: unexpected
+    autorestart: true
     exitcodes:
       - 0
       - 2
     startretries: 3
     starttime: 5
     stoptime: 10
-    stopsignal: SIGTERM
     redirectstdout: true
-    stdout: /tmp/lol/lol/lool/dssdds/nginx.stdout
+    stdout: /tmp/php.stdout
     redirectstderr: false
-    stderr: /tmp/dsdsdsd/sdsldsldskd/dldddslds.stderr
+    stderr: /tmp/php.stderr
     env:
       STARTED_BY: taskmaster
       ANSWER: 42
+    stopsignal: AAAAAAAAAAAAAAAAAAAAAAAAAAA
+taskmasteroptions:
+  rootwarn: false
+eventlistener:
+  activated: false

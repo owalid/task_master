@@ -12,7 +12,7 @@ class Server:
     @staticmethod
     def get_instance():
         '''
-        Static access method.
+            Static access method. used to make singleton.
         '''
         if Server.__instance == None:
             Server()
@@ -33,6 +33,10 @@ class Server:
 
 
     def start_server(self):
+        '''
+        Start the server. Bind the socket to address and listen for connections.
+        return: None
+        '''
         self.start_all_jobs()
         self.start_event_manager()
         self.bind()
@@ -61,12 +65,14 @@ class Server:
     def bind(self):
         '''
         Bind the socket to address.
+        return: None
         '''
         self.server.bind(SOCK_FILE)
 
     def list_jobs(self):
         '''
         List all jobs.
+        return: None
         '''
         jobs_name = [job.name for job in self.jobs]
         jobs_name = "\n".join(jobs_name)
@@ -75,6 +81,7 @@ class Server:
     def parse_data_received(self, data):
         '''
         Parse the data received from the socket.
+        return: None
         '''
         if data:
             data_splitted = data.split(" ")
@@ -115,6 +122,7 @@ class Server:
     def listen_accept_receive(self):
         '''
         Accept a connection. The socket must be bound to an address and listening for connections.
+        return: None
         '''
         try:
             while True:
@@ -143,6 +151,7 @@ class Server:
     def close(self):
         '''
         Close the socket.
+        return: None
         '''
         if self.connection != None:
             self.connection.close()
@@ -153,6 +162,7 @@ class Server:
     def get_job_from_name(jobs, job_name):
         '''
         Return the job object from its name.
+        return: Job
         '''
         for job in jobs:
             if job.name == job_name:
@@ -162,6 +172,7 @@ class Server:
     def start_all_jobs(self):
         '''
         Start all jobs if "autostart" option is sets to true
+        return: None
         '''
         for job in self.jobs:
             job_state = job.get_state()
@@ -172,6 +183,7 @@ class Server:
     def stop_all_jobs(self):
         '''
         Stop all jobs
+        return: None
         '''
         for job in self.jobs:
             job_state = job.get_state()
@@ -180,7 +192,8 @@ class Server:
 
     def send_command(self, job_name, cmd_name):
         '''
-        Send an command to the job.
+        Send an command to the job dynamically.
+        return: None
         '''
         job = self.get_job_from_name(self.jobs, job_name)
 

@@ -45,10 +45,11 @@ class Job:
         self.redirectstderr = redirectstderr
         if self.redirectstderr == True and stderr == None:
             self.stderr = '/tmp/' + self.name + '.stderr'
-        elif  self.redirectstderr == False:
+        elif self.redirectstderr == False:
             self.stderr = '/dev/null'
-        else :
+        else:
             self.stderr = stderr
+       
         self.state = PROCESS_STATUS.NOTSTARTED.value
         self.old_state = PROCESS_STATUS.UNKNOWN.value
         self.date_of_last_status_change = datetime.now().ctime()
@@ -58,11 +59,30 @@ class Job:
         self.stderrFileForAttachMode = None
 
     def __copy__(self):
+        '''
+            Make a copy of the job
+            return: Job
+        '''
         return Job(self.name, self.cmd, self.user, self.numprocs, self.umask, self.workingdir, self.autostart,
         self.autorestart, self.exitcodes, self.startretries, self.starttime, self.stopsignal, self.stoptime,
         self.redirectstdout, self.stdout, self.redirectstderr, self.stderr, self.env)
+    
+    def safe_open_std(self, filename, mode):
+        '''
+            Open a file in write mode and create the directory if it doesn't exist
+            return the file descriptor
+        '''
+        # Create the directory if it doesn't exist
+        if os.path.exists(os.path.dirname(filename)) == False:
+            os.makedirs(os.path.dirname(filename))
+        return open(filename, mode)
+
 
     def print_conf(self):
+        '''
+            Print the configuration of the job
+            return: None
+        '''
         print("Name : "  + self.name)
         print("Command : " + self.cmd)
         print("Number of proc " + str(self.numprocs))
@@ -85,6 +105,10 @@ class Job:
 
 
     def set_status(self, new_status, connection=None):
+        '''
+            Set the status of the job and make a log
+            return: None
+        '''
         if new_status not in PROCESS_STATUS:
             raise TypeError("The status could'nt be changed. See ParsingEnum.py/PROCESS_STATUS for available statuses.")
         self.old_state = self.state
@@ -94,6 +118,10 @@ class Job:
         self.status(connection)
 
     def status(self, connection=None):
+        '''
+            Send to client the status of the job
+            return: None
+        '''
         result = ''
         if self.state != PROCESS_STATUS.EXCITED.value:
             result = f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.\n"
@@ -103,9 +131,17 @@ class Job:
         send_result_command(connection, result)
 
     def get_state(self):
+        '''
+            Return the state of the job
+            return: str
+        '''
         return self.state
 
     def make_log(self):
+        '''
+            Make a log of the job use for the eventmanager program
+            return: None
+        '''
         log = "server:Taskmaster|"
         log += "eventid:" + str(uuid.uuid1()) + "|"
         log += "date:" + base64.b64encode(self.date_of_last_status_change.encode()).decode() + "|"
@@ -126,6 +162,10 @@ class Job:
             print(f"{ERRORS.LOG_ERROR.value}{e}")
 
     def start(self, connection=None, restart=False):
+        '''
+            Start the job with subprocess.Popen, set the status and send the result to the client, and restart the job if it's failed
+            return: None
+        '''
         if self.state == PROCESS_STATUS.RUNNING.value and restart == False:
             return send_result_command(connection, f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is already running.\nPlease use restart command to restart it.\n")
 
@@ -134,8 +174,8 @@ class Job:
             try:
                 self.process = subprocess.Popen(cmd_split,
                                 env=dict(self.env),
-                                stdout=open(self.stdout, 'w') if self.stdout else subprocess.PIPE,
-                                stderr=open(self.stderr, 'w') if self.stderr else subprocess.PIPE,
+                                stdout=self.safe_open_std(self.stdout, 'w+') if self.stdout else subprocess.PIPE,
+                                stderr=self.safe_open_std(self.stderr, 'w+') if self.stderr else subprocess.PIPE,
                                 cwd=self.workingdir,
                                 umask=self.umask
                 )
@@ -153,6 +193,11 @@ class Job:
 
 
     def stop(self, connection=None):
+        '''
+            Stop the job with os.kill and send the signal to subprocess.
+            Set the status and send the result to the client
+            return: None
+        '''
         if connection != None and isinstance(connection, socket.socket):
             connection.settimeout(self.stoptime)
 
@@ -170,6 +215,10 @@ class Job:
         self.set_status(PROCESS_STATUS.STOPPED.value, connection)
 
     def restart(self, connection=None):
+        '''
+            Restart the job if the autorestart is set to unexpected or always
+            return: None
+        '''
         self.startretries -= 1
         if self.autorestart == False:
             self.set_status(PROCESS_STATUS.EXCITED.value, connection)
@@ -187,6 +236,10 @@ class Job:
             self.start(connection=connection, restart=True)
 
     def attach(self, connection=None):
+        '''
+            Attach the job to the client, to get the stdout and stderr of the job
+            return: None
+        '''
         if self.attachMode == False:
             try:
                 self.stderrFileForAttachMode = open(self.stderr, 'r') if self.stderr else self.process.stderr
@@ -230,6 +283,10 @@ class Job:
             send_result_command(connection, ERRORS.ATTACHED_MODE_ALREADY_RUNNING_ERROR.value)
 
     def detach(self, connection=None):
+        '''
+            Detach the job from the client
+            return: None
+        '''
         try:
             if self.stdout:
                 self.stdoutFileForAttachMode.close()
