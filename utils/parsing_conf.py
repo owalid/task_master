@@ -6,7 +6,6 @@ from classes.ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALL
 from utils.validations import VALIDATION_DICT
 from classes.TaskmasterOptions import TaskmasterOptions
 from classes.EventManagerOptions import EventManagerOptions
-import pwd
 
 def init_default_job(prg, values):
     have_env_in_conf = ALLOWED_PROGRAM_ENTRIES.ENV.value in values.keys()

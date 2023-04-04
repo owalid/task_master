@@ -1,6 +1,6 @@
 import argparse as ap
-from subprocess import check_output
-import os, sys
+import os
+import sys
 import subprocess
 import signal
 from classes.Server import Server

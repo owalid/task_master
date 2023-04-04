@@ -5,7 +5,7 @@ import socket
 import os
 import signal
 from colorama import Fore, Style
-from classes.ParsingEnum import ERRORS, RESTART_VALUES, STOP_SIGNAL, PROCESS_STATUS
+from classes.ParsingEnum import ERRORS, RESTART_VALUES, PROCESS_STATUS
 import shlex, subprocess, uuid, base64, select
 
 class Job:
