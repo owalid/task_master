@@ -3,7 +3,7 @@ programs:
     cmd: [/bin/lol]
     numprocs: ["abc"]
     umask: ["abc"]
-    workingdir: 
+    workingdir:
       - 123
       - 123
       - "abc"
@@ -13,7 +13,7 @@ programs:
       - ["a"]
       - ["a"]
     startretries: ["abc"]
-    starttime: 
+    starttime:
       - "abc"
       - "abc"
       - "abc"
@@ -22,7 +22,7 @@ programs:
       - "abc"
       - "abc"
       - "abc"
-    redirectstdout: 
+    redirectstdout:
       - 2
       - 2
       - 2
