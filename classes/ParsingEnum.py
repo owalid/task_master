@@ -80,7 +80,8 @@ class ERRORS(BaseEnum):
     TM_NOT_RUNNING_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Taskmaster is not running.'
     UNKNOW_SYNTAX_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Unknown Syntax: '
     MISSING_ARGUMENT_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Missing arguments.'
-    NO_SUCH_FILE_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} No such file: '
+    NO_SUCH_FILE_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} No such file or directory: '
+    NOT_A_DIR_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Not a directory: '
     CONNECTION_REFUSED_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Connection refused: '
     CONNECTION_RESET_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Connection reset by peer.'
     BROKEN_PIPE_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Broken pipe.'
@@ -99,6 +100,10 @@ class ERRORS(BaseEnum):
     CONF_FILE_BAD_KEY_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} The following key is not allowed: '
     CONF_FILE_BAD_VALUE_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} The following value is not allowed: '
     CONF_FILE_NO_SUCH_USER=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} The following user does not exist: '
+    CONF_FILE_DEV_RANDOM_ERROR=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Write to /dev/random or /dev/urandom is a bad idea.'
+    CONF_FILE_DUPLICATE_ENTRIES=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Duplicate entries for: '
+    CONF_FILE_TOO_MUCH_EXIT_CODE=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Wrong number of entries for exitcodes. Min: 1. Max 255.'
+    CONF_FILE_BAD_TYPE=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Bad type for: '
     PID_FILE_NOT_FOUND=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} The pid file could not be found.'
 
 
