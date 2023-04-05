@@ -76,7 +76,6 @@ class Server:
         '''
         jobs_name = [job.name for job in self.jobs]
         jobs_name = "\n".join(jobs_name)
-        print(jobs_name)
         send_result_command(self.connection, jobs_name)
 
     def parse_data_received(self, data):
