@@ -2,7 +2,6 @@ from enum import Enum, EnumMeta
 from colorama import *
 import signal
 
-
 class MetaEnum(EnumMeta):
     def __contains__(cls, item):
         try:
@@ -13,6 +12,17 @@ class MetaEnum(EnumMeta):
 
 class BaseEnum(Enum, metaclass=MetaEnum):
     pass
+
+def extend_join_enums(inherited_enum):
+    def wrapper(added_enum):
+        joined = {}
+        for items in inherited_enum:
+            for item in items:
+                joined[item.name] = item.value
+        for item in added_enum:
+            joined[item.name] = item.value
+        return BaseEnum(added_enum.__name__, joined)
+    return wrapper
 
 class ALLOWED_CATEGORIES(BaseEnum):
     PROGRAMS='programs'
@@ -45,15 +55,22 @@ class ALLOWED_PROGRAM_ENTRIES(BaseEnum):
     STDERR='stderr'
     ENV='env'
 
-class ALLOWED_COMMANDS(BaseEnum):
+
+class ALLOWED_COMMANDS_WITH_PARAMS(BaseEnum):
     START='start'
     STATUS='status'
     STOP='stop'
     RESTART='restart'
-    KILL='kill'
-    LIST='list'
     ATTACH='attach'
     DETACH='detach'
+
+class ALLOWED_COMMANDS_WITHOUT_PARAMS(BaseEnum):
+    KILL='kill'
+    LIST='list'
+
+@extend_join_enums([ALLOWED_COMMANDS_WITHOUT_PARAMS, ALLOWED_COMMANDS_WITH_PARAMS])
+class ALLOWED_COMMANDS(BaseEnum):
+    pass
 
 class PROCESS_STATUS(BaseEnum):
     NOTSTARTED="Not started"
