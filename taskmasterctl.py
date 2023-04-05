@@ -1,7 +1,10 @@
 from classes.Client import Client
 from utils.command import parse_command
-from classes.ParsingEnum import ALLOWED_COMMANDS, ERRORS
+from classes.ParsingEnum import ALLOWED_COMMANDS, ALLOWED_COMMANDS_WITH_PARAMS, ALLOWED_COMMANDS_WITHOUT_PARAMS, ERRORS
 import signal
+import sys
+
+LISTED_JOBS = []
 
 def signal_handler(signal, frame):
     global detachMode
@@ -12,6 +15,31 @@ def clean_exit(client):
     print("Bye")
     exit(0)
 
+def update_listed_jobs():
+    global LISTED_JOBS
+    client = Client.get_instance()
+    client.send(f"list")
+    listed_jobs = client.receive()
+    LISTED_JOBS = listed_jobs.split('\n')
+    LISTED_JOBS.append("all")
+
+def completer(text, state):
+    # Get current input to know if we are completing a command
+    current_input = readline.get_line_buffer()
+    if current_input:
+        current_input = readline.get_line_buffer().split(" ")[0]
+    if current_input in ALLOWED_COMMANDS_WITHOUT_PARAMS: # No autocompletion for commands without params
+        return None
+    if current_input in ALLOWED_COMMANDS_WITH_PARAMS: # Try to complete a jobname
+        options = [job for job in LISTED_JOBS if job.startswith(text)]
+    else: # Try to complete a command
+        options = [cmd.value for cmd in ALLOWED_COMMANDS if cmd.value.startswith(text)]
+
+    if state < len(options):
+        return options[state]
+    else:
+        return None
+
 def display_help():
     print('''commands:
 =============================================
@@ -20,10 +48,14 @@ restart   attach    detach   list     kill
 =============================================''')
 if __name__ == "__main__":
     client = Client()
+    import readline # this is for the history and autocompletion of the commands
+    readline.parse_and_bind("tab:complete")
+    readline.set_completer(completer)
 
     while True:
         try:
-            cmd = input("taskmaster> ")
+            update_listed_jobs() # Update the list of jobs
+            cmd = input('taskmaster> ')
             # Parse help, exit and quit command
             if cmd == 'help':
                 display_help()

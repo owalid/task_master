@@ -1,6 +1,6 @@
 programs:
   date:
-    cmd: "bash -c 'while true; do echo $(date); sleep 1; done'"
+    cmd: "/bin/bash -c 'while true; do echo $(date); sleep 1; done'"
     numprocs: 3
     umask: 022
     workingdir: /tmp
