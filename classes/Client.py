@@ -4,18 +4,35 @@ from classes.ParsingEnum import ERRORS
 from classes.Server import SOCK_FILE
 
 class Client:
+     # __instance is used to store the instance of the class
+    __instance = None
+
+    @staticmethod
+    def get_instance():
+        '''
+            Static access method. used to make singleton.
+        '''
+        if Client.__instance == None:
+            Client()
+        return Client.__instance
+    
     def __init__(self):
-        self.client_socket = None
-        try:
-            if not os.path.exists(SOCK_FILE):
-                print(f"{ERRORS.NO_SUCH_FILE_ERROR.value}unix://{SOCK_FILE}")
-            else:
-                self.client_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-                self.client_socket.settimeout(1)
-                self.connect()
-        except ConnectionRefusedError:
-            print(f"{ERRORS.CONNECTION_REFUSED_ERROR.value}unix://{SOCK_FILE}")
-            exit(1)
+        if Client.__instance != None:
+            return Client.__instance
+        else:
+            self.client_socket = None
+            try:
+                if not os.path.exists(SOCK_FILE):
+                    print(f"{ERRORS.NO_SUCH_FILE_ERROR.value}unix://{SOCK_FILE}")
+                    exit(1)
+                else:
+                    self.client_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                    self.client_socket.settimeout(1)
+                    self.connect()
+                    Client.__instance = self
+            except ConnectionRefusedError:
+                print(f"{ERRORS.CONNECTION_REFUSED_ERROR.value}unix://{SOCK_FILE}")
+                exit(1)
 
     def connect(self):
         '''
@@ -29,7 +46,6 @@ class Client:
         Send data to the server.
         return: None
         '''
-        print(data)
         try:
             self.client_socket.send(data.encode())
         except ConnectionResetError:
