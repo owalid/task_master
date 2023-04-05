@@ -127,7 +127,6 @@ class Job:
             result = f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.\n"
         else:
             result = f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is currently {Style.BRIGHT}{self.state}{Style.RESET_ALL} with code {self.last_exit_code} since {Style.BRIGHT}{self.date_of_last_status_change}{Style.RESET_ALL}.\n"
-
         send_result_command(connection, result)
 
     def get_state(self):
@@ -220,19 +219,19 @@ class Job:
             return: None
         '''
         self.startretries -= 1
+        self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
         if self.autorestart == False:
+            self.set_status(PROCESS_STATUS.STOPPED.value, connection)
             self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         elif self.autorestart == RESTART_VALUES.UNEXPECTED.value:
             if self.last_exit_code not in self.exitcodes:
-                #for debugging purpose only
                 self.stop(connection=connection)
-                self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
                 self.start(connection=connection, restart=True)
             else:
+                self.set_status(PROCESS_STATUS.STOPPED.value, connection)
                 self.set_status(PROCESS_STATUS.EXCITED.value, connection)
         else:
             self.stop(connection=connection)
-            self.set_status(PROCESS_STATUS.RESTARTED.value, connection)
             self.start(connection=connection, restart=True)
 
     def attach(self, connection=None):

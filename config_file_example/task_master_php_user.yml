@@ -24,4 +24,4 @@ programs:
 taskmasteroptions:
   rootwarn: false
 eventlistener:
-  activated: false
+  activated: true
