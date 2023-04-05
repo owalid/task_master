@@ -61,7 +61,7 @@ class PROCESS_STATUS(BaseEnum):
     RUNNING="Running"
     RESTARTED="Restarted"
     STOPPED="Stopped"
-    EXCITED="Excited"
+    EXCITED="Exited"
     ATTACHED="Attached"
     DETACHED="Detached"
     UNKNOWN="Unknown"

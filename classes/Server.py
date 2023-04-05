@@ -136,12 +136,13 @@ class Server:
                         break
                     if not data:
                         break
+                    for job in self.jobs:
+                        if job.process.poll() is not None and job.state != PROCESS_STATUS.EXCITED.value:
+                            job.last_exit_code = job.process.returncode
+                            job.set_status(PROCESS_STATUS.EXCITED.value)
                     self.parse_data_received(data.decode())
 
                     # Check for all processes if they are still running
-                    for job in self.jobs:
-                        if job.process.poll() is not None:
-                            job.last_exit_code = job.process.returncode
         except KeyboardInterrupt:
             print('')
             self.close()
