@@ -137,7 +137,7 @@ class Server:
                     if not data:
                         break
                     for job in self.jobs:
-                        if job.process.poll() is not None and job.state != PROCESS_STATUS.EXCITED.value:
+                        if job.process.poll() is not None and job.get_state() != PROCESS_STATUS.EXCITED.value:
                             job.last_exit_code = job.process.returncode
                             job.set_status(PROCESS_STATUS.EXCITED.value)
                     self.parse_data_received(data.decode())
