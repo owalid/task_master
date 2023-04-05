@@ -1,6 +1,6 @@
 programs:
   bad_types:
-    cmd: /bin/lol
+    cmd: "/usr/sbin/nginx -c /etc/nginx/test.conf"
     numprocs: ["abc"]
     umask: "abc"
     workingdir: 123
@@ -21,3 +21,4 @@ taskmasteroptions:
   rootwarn: "a"
 eventlistener:
   activated: "A"
+git

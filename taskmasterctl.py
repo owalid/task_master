@@ -14,9 +14,10 @@ def clean_exit(client):
 
 def display_help():
     print('''commands:
-=====================================
-quit    exit    stop    start    status
-=====================================''')
+=============================================
+quit      exit      stop     start    status
+restart   attach    detach   list     kill
+=============================================''')
 if __name__ == "__main__":
     client = Client()
 
