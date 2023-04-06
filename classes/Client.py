@@ -63,7 +63,7 @@ class Client:
         result = ''
         while True:
             try:
-                data = self.client_socket.recv(2048)
+                data = self.client_socket.recv(1024)
                 if data != b'':
                     result += data.decode()
                 else:
