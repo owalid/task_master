@@ -37,7 +37,6 @@ def daemonize():
         print(f"{ERRORS.FORK_ERROR.value}{err}")
         exit(1)
 
-    os.chdir('/') # change directory to root
     os.setsid() # change session id of process
     os.umask(0) # change permission mask of process
 
