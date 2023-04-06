@@ -2,7 +2,7 @@ from classes.Client import Client
 from utils.command import parse_command
 from classes.ParsingEnum import ALLOWED_COMMANDS, ALLOWED_COMMANDS_WITH_PARAMS, ALLOWED_COMMANDS_WITHOUT_PARAMS, ERRORS
 import signal
-import sys
+import time
 
 LISTED_JOBS = []
 
@@ -53,6 +53,8 @@ if __name__ == "__main__":
     readline.set_completer(completer)
     while True:
         try:
+            # sleep for 1 second
+            time.sleep(0.3)
             update_listed_jobs() # Update the list of jobs
             cmd = input('taskmaster> ')
             # Parse help, exit and quit command

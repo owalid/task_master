@@ -4,6 +4,7 @@ from classes.ParsingEnum import ALLOWED_COMMANDS, ERRORS, PROCESS_STATUS, RESTAR
 from utils.command import send_result_command
 
 SOCK_FILE = "/tmp/taskmaster.sock"
+SIZE_OF_RECEIVE = 1024
 
 class Server:
     # __instance is used to store the instance of the class
@@ -130,11 +131,16 @@ class Server:
                 self.connection, _ = self.server.accept()
                 while True:
                     self.connection.setblocking(True)
-                    try:
-                        data = self.connection.recv(1024)
-                    except:
-                        break
-                    if not data:
+                    res = b''
+                    while True:
+                        try:
+                            data = self.connection.recv(SIZE_OF_RECEIVE)
+                            res += data
+                            if len(data.decode()) < SIZE_OF_RECEIVE or data == b'':
+                                break
+                        except:
+                            break
+                    if not res:
                         break
                     for job in self.jobs:
                         if job.process:
@@ -143,7 +149,7 @@ class Server:
                                 job.set_status(PROCESS_STATUS.EXITED.value)
                                 if (job.autorestart == True or job.autorestart == RESTART_VALUES.UNEXPECTED.value) and job.startretries > 0:
                                     job.restart()
-                    self.parse_data_received(data.decode())
+                    self.parse_data_received(res.decode())
 
                     # Check for all processes if they are still running
         except KeyboardInterrupt:
