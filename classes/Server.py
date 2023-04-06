@@ -141,7 +141,7 @@ class Server:
                             if job.process.poll() is not None and job.get_state() != PROCESS_STATUS.EXITED.value:
                                 job.last_exit_code = job.process.returncode
                                 job.set_status(PROCESS_STATUS.EXITED.value)
-                                if job.autorestart == True or job.autorestart == RESTART_VALUES.UNEXPECTED.value and job.startretries > 0:
+                                if (job.autorestart == True or job.autorestart == RESTART_VALUES.UNEXPECTED.value) and job.startretries > 0:
                                     job.restart()
                     self.parse_data_received(data.decode())
 
