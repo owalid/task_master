@@ -51,7 +51,6 @@ if __name__ == "__main__":
     import readline # this is for the history and autocompletion of the commands
     readline.parse_and_bind("tab:complete")
     readline.set_completer(completer)
-
     while True:
         try:
             update_listed_jobs() # Update the list of jobs
@@ -67,7 +66,7 @@ if __name__ == "__main__":
             (cmd_parsed, arguments) = parse_command(cmd)
 
             if cmd_parsed == 'kill':
-                res = input("Are you sure you want to kill all processes and taskmaster? (Y/n)")
+                res = input("Are you sure you want to kill all processes and taskmaster? (Y/n) ")
                 res = res.lower()
 
                 if res == 'y' or res == 'yes' or res == '':
@@ -106,8 +105,6 @@ if __name__ == "__main__":
                     print(client.receive())
                 elif cmd_parsed == ALLOWED_COMMANDS.RESTART.value:
                     client.send(f"{cmd_parsed} {arguments}")
-                    print(client.receive())
-                    print(client.receive())
                     print(client.receive())
                 else:
                     client.send(f"{cmd_parsed} {arguments}")

@@ -6,12 +6,12 @@ programs:
     workingdir: /tmp
     user: kibatche
     autostart: true
-    autorestart: true
+    autorestart: unexpected
     exitcodes:
       - 0
       - 2
     startretries: 3
-    starttime: 5
+    starttime: 15
     stoptime: 10
     redirectstdout: true
     stdout: /tmp/php.stdout

@@ -67,6 +67,7 @@ class ALLOWED_COMMANDS_WITH_PARAMS(BaseEnum):
 class ALLOWED_COMMANDS_WITHOUT_PARAMS(BaseEnum):
     KILL='kill'
     LIST='list'
+    EXITED='exited'
 
 @extend_join_enums([ALLOWED_COMMANDS_WITHOUT_PARAMS, ALLOWED_COMMANDS_WITH_PARAMS])
 class ALLOWED_COMMANDS(BaseEnum):
@@ -75,10 +76,9 @@ class ALLOWED_COMMANDS(BaseEnum):
 class PROCESS_STATUS(BaseEnum):
     NOTSTARTED="Not started"
     STARTED="Started"
-    RUNNING="Running"
     RESTARTED="Restarted"
     STOPPED="Stopped"
-    EXCITED="Exited"
+    EXITED="Exited"
     ATTACHED="Attached"
     DETACHED="Detached"
     UNKNOWN="Unknown"
