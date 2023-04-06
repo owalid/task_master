@@ -107,17 +107,18 @@ if __name__ == "__main__":
     check_rights_and_user(jobs, taskmaster_options, accept_default=args.default)
     server = Server(jobs, event_listener_options)
 
-    # write pid of taskmaster in /tmp/taskmaster.pid
-    if os.path.exists(PID_FILE):
-        os.remove(PID_FILE)
-    with open(PID_FILE, "w") as f:
-        f.write(str(os.getpid()))
-
     signal.signal(signal.SIGHUP, handle_sighup)
     signal.signal(signal.SIGQUIT, handle_sigquit)
 
     #! THIS CONDITION IS USED ONLY FOR TESTING PURPOSES
     if args.deamonize:
         daemonize()
+    
+    # write pid of taskmaster in /tmp/taskmaster.pid
+    if os.path.exists(PID_FILE):
+        os.remove(PID_FILE)
+    with open(PID_FILE, "w") as f:
+        f.write(str(os.getpid()))
+
     # Start server
     server.start_server()
