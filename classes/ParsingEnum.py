@@ -75,10 +75,9 @@ class ALLOWED_COMMANDS(BaseEnum):
 class PROCESS_STATUS(BaseEnum):
     NOTSTARTED="Not started"
     STARTED="Started"
-    RUNNING="Running"
     RESTARTED="Restarted"
     STOPPED="Stopped"
-    EXCITED="Excited"
+    EXITED="Exited"
     ATTACHED="Attached"
     DETACHED="Detached"
     UNKNOWN="Unknown"

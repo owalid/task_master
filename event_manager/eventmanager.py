@@ -1,12 +1,14 @@
 from Event import Event
 import time, datetime, shutil, os,  yagmail, dotenv, sys
-
+import sys
+from os import path
+sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
 from classes.ParsingEnum import ERRORS
-
 
 def send_mail(filepath):
     env = dotenv.dotenv_values()
     if env == None:
+
         print(ERRORS.ENV_NOT_FOUND_ERROR.value)
         return
     try:
@@ -55,9 +57,17 @@ def compute_raw_file_logs():
     return filepath
 
 def main():
+    env = dotenv.dotenv_values()
+    cycle = int(env.get("CYCLE"))
+    if  not isinstance(cycle, int):
+        exit(1)
+    if cycle == None:
+        cycle = 600
+    if cycle < 20 or cycle > 31536000:
+        exit(1)
     timer = time.perf_counter()
     while 1:
-        if time.perf_counter() - timer >= 20:
+        if time.perf_counter() - timer >= cycle:
             print("Counter OK")
             timer = time.perf_counter()
             if os.path.exists("/tmp/.taskmaster_raw_logs"):

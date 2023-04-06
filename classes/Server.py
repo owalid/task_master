@@ -1,6 +1,6 @@
 import socket
 import os, subprocess
-from classes.ParsingEnum import ALLOWED_COMMANDS, ERRORS, PROCESS_STATUS
+from classes.ParsingEnum import ALLOWED_COMMANDS, ERRORS, PROCESS_STATUS, RESTART_VALUES
 from utils.command import send_result_command
 
 SOCK_FILE = "/tmp/taskmaster.sock"
@@ -136,12 +136,16 @@ class Server:
                         break
                     if not data:
                         break
+                    for job in self.jobs:
+                        if job.process:
+                            if job.process.poll() is not None and job.get_state() != PROCESS_STATUS.EXITED.value:
+                                job.last_exit_code = job.process.returncode
+                                job.set_status(PROCESS_STATUS.EXITED.value)
+                                if job.autorestart == True or job.autorestart == RESTART_VALUES.UNEXPECTED.value and job.startretries > 0:
+                                    job.restart()
                     self.parse_data_received(data.decode())
 
                     # Check for all processes if they are still running
-                    for job in self.jobs:
-                        if job.process.poll() is not None:
-                            job.last_exit_code = job.process.returncode
         except KeyboardInterrupt:
             print('')
             self.close()
@@ -176,7 +180,7 @@ class Server:
         '''
         for job in self.jobs:
             job_state = job.get_state()
-            if job.autostart == True and job_state != PROCESS_STATUS.RUNNING.value \
+            if job.autostart == True and job_state != PROCESS_STATUS.STARTED.value \
             and job_state != PROCESS_STATUS.STARTED.value and job_state != PROCESS_STATUS.RESTARTED.value:
                 job.start()
 
