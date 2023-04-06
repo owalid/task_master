@@ -53,7 +53,7 @@ if __name__ == "__main__":
     readline.set_completer(completer)
     while True:
         try:
-            # sleep for 1 second
+            # sleep for 0.3 second
             time.sleep(0.3)
             update_listed_jobs() # Update the list of jobs
             cmd = input('taskmaster> ')
