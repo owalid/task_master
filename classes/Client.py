@@ -27,7 +27,7 @@ class Client:
                     exit(1)
                 else:
                     self.client_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-                    self.client_socket.settimeout(1)
+                    self.client_socket.settimeout(0.5)
                     self.connect()
                     Client.__instance = self
             except ConnectionRefusedError:
@@ -60,14 +60,19 @@ class Client:
         Receive data from the server.
         return: None
         '''
-        try:
-            data = self.client_socket.recv(1024)
-            return data.decode()
-        except ConnectionResetError:
-            print(ERRORS.CONNECTION_RESET_ERROR.value)
-            exit(1)
-        except socket.timeout:
-            return
+        result = ''
+        while True:
+            try:
+                data = self.client_socket.recv(1024)
+                if data != b'':
+                    result += data.decode()
+                else:
+                    return result
+            except ConnectionResetError:
+                print(ERRORS.CONNECTION_RESET_ERROR.value)
+                exit(1)
+            except socket.timeout:
+                return result
 
     def close(self):
         '''
