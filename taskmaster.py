@@ -25,21 +25,21 @@ def handle_sighup(signum, frame, conf_path):
         send_result_command(server.connection, ERRORS.CONF_FILE_LOADING_ERROR.value)
         return
     hash_array_new_jobs = []
-    for job in new_list_of_jobs:
-        hash_array_new_jobs.append(job.hash)
+    for new_job in new_list_of_jobs:
+        hash_array_new_jobs.append(new_job.hash)
     hash_array_old_jobs = []
-    for job in server.jobs:
-        if job.hash not in hash_array_new_jobs:
-            job.stop()
-            server.jobs.remove(job)
+    for old_job in server.jobs:
+        if old_job.hash not in hash_array_new_jobs:
+            old_job.stop()
+            server.jobs.remove(old_job)
         else:
-            hash_array_old_jobs.append(job.hash)
+            hash_array_old_jobs.append(old_job.hash)
     is_new_jobs_added  = False
-    for job in new_list_of_jobs:
-        if job.hash in hash_array_old_jobs:
-            pass
+    for new_job in new_list_of_jobs:
+        if new_job.hash in hash_array_old_jobs:
+            continue
         else:
-            server.jobs.append(job)
+            server.jobs.append(new_job.__copy__())
             is_new_jobs_added = True
     if is_new_jobs_added:
         server.start_all_jobs()
