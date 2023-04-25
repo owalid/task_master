@@ -57,7 +57,7 @@ class Job:
         self.attachMode = False
         self.stdoutFileForAttachMode = None
         self.stderrFileForAttachMode = None
-
+        self.hash = None
     def __copy__(self):
         '''
             Make a copy of the job

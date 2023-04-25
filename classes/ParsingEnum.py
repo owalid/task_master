@@ -67,6 +67,7 @@ class ALLOWED_COMMANDS_WITH_PARAMS(BaseEnum):
 class ALLOWED_COMMANDS_WITHOUT_PARAMS(BaseEnum):
     KILL='kill'
     LIST='list'
+    RELOAD='reload'
 
 @extend_join_enums([ALLOWED_COMMANDS_WITHOUT_PARAMS, ALLOWED_COMMANDS_WITH_PARAMS])
 class ALLOWED_COMMANDS(BaseEnum):
@@ -77,6 +78,7 @@ class PROCESS_STATUS(BaseEnum):
     STARTED="Started"
     RESTARTED="Restarted"
     STOPPED="Stopped"
+    RELOAD="Reload"
     EXITED="Exited"
     ATTACHED="Attached"
     DETACHED="Detached"
@@ -120,6 +122,7 @@ class ERRORS(BaseEnum):
     CONF_FILE_DUPLICATE_ENTRIES=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Duplicate entries for: '
     CONF_FILE_TOO_MUCH_EXIT_CODE=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Wrong number of entries for exitcodes. Min: 1. Max 255.'
     CONF_FILE_BAD_TYPE=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} Bad type for: '
+    NEW_BAD_CONF_FILE=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} The new configuration file is not good. Passed configuration will be preserved.'
     PID_FILE_NOT_FOUND=f'{Back.RED}{Style.BRIGHT}[ERROR]{Style.RESET_ALL} The pid file could not be found.'
 
 

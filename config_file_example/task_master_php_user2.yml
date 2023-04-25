@@ -1,0 +1,48 @@
+programs:
+  php:
+    cmd: "/usr/bin/php -S 0.0.0.0:4242"
+    numprocs: 1
+    umask: 022
+    workingdir: /tmp
+    user: kibatche
+    autostart: true
+    autorestart: unexpected
+    exitcodes:
+      - 2
+      - 0
+    startretries: 3
+    starttime: 15
+    stoptime: 10
+    redirectstdout: true
+    stdout: /tmp/php.stdout
+    redirectstderr: false
+    stderr: /tmp/php.stderr
+    env:
+      STARTED_BY: taskmaster
+      ANSWER: 42
+    stopsignal: SIGKILL
+  nginx:
+    cmd: "/usr/sbin/nginx -c /tmp/nginx.conf"
+    numprocs: 1
+    umask: 022
+    workingdir: /tmp
+    user: kibatche
+    autostart: true
+    autorestart: unexpected
+    exitcodes:
+      - 0
+      - 2
+    startretries: 3
+    starttime: 5
+    stoptime: 10
+    redirectstdout: true
+    stdout: /tmp/nginx.stdout
+    redirectstderr: false
+    stderr: /tmp/nginx.stderr
+    env:
+      STARTED_BY: taskmaster
+      ANSWER: 42
+taskmasteroptions:
+  rootwarn: false
+eventlistener:
+  activated: false
