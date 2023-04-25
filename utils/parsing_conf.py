@@ -27,9 +27,7 @@ def make_hash(job):
     values_string = ""
     for key in vars(job):
         # print(key)
-        if key == "old_state" or key == "date_of_last_status_change" or key == "last_exit_code" or key == "started_once" \
-        or key == "startretries" or key == "state" or key == "old_state" or key == "attachMode" or key == "stdoutFileForAttachMode" \
-        or key == "stderrFileForAttachMode" or key == "hash":
+        if key != "name" and key not in ALLOWED_PROGRAM_ENTRIES:
             print(f"On passe {key}")
             continue
         print(f"On ne passe pas {key}")
