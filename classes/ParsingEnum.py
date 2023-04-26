@@ -63,6 +63,7 @@ class ALLOWED_COMMANDS_WITH_PARAMS(BaseEnum):
     RESTART='restart'
     ATTACH='attach'
     DETACH='detach'
+    PRINT_CONF='print_conf'
 
 class ALLOWED_COMMANDS_WITHOUT_PARAMS(BaseEnum):
     KILL='kill'
@@ -83,6 +84,8 @@ class PROCESS_STATUS(BaseEnum):
     ATTACHED="Attached"
     DETACHED="Detached"
     UNKNOWN="Unknown"
+    SUSPENDED="Suspended"
+    RESUMED="Resumed"
 
 class ALLOWED_TM_OPTIONS(BaseEnum):
     ROOTWARN='rootwarn'

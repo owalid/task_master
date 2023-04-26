@@ -28,13 +28,10 @@ def make_hash(job):
     for key in vars(job):
         # print(key)
         if key != "name" and key not in ALLOWED_PROGRAM_ENTRIES:
-            print(f"On passe {key}")
             continue
-        print(f"On ne passe pas {key}")
         value = getattr(job, key)
         values_string += str(value)
     job.hash = hashlib.sha256(str.encode(values_string)).hexdigest()
-    print(f"Hash = {job.hash}")
 
 def parse_event_listener_options_conf_file(conf_path):
     conf_file_loaded = None

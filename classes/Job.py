@@ -57,6 +57,7 @@ class Job:
         self.attachMode = False
         self.stdoutFileForAttachMode = None
         self.stderrFileForAttachMode = None
+        self.to_resume = False
         self.hash = None
     def __copy__(self):
         '''
@@ -78,31 +79,33 @@ class Job:
         return open(filename, mode)
 
 
-    def print_conf(self):
+    def print_conf(self, connection=None):
         '''
             Print the configuration of the job
             return: None
         '''
-        print("Name : "  + self.name)
-        print("Command : " + self.cmd)
-        print("Number of proc " + str(self.numprocs))
-        print("Umask : " + str(self.umask))
-        print("Working Directory : " + self.workingdir)
-        print("Autostart : " + str(self.autostart))
-        print("Autorestart : " + str(self.autorestart))
-        print("Exit codes : " + str(self.exitcodes))
-        print("Start retries : " + str(self.startretries))
-        print("Start time : " + str(self.starttime))
-        print("Stop signal : " + self.stopsignal)
-        print("Stop time : " + str(self.stoptime))
-        print(f"redirectstdout: {self.redirectstdout}")
-        print("stdout : " + self.stdout)
-        print(f"redirectstderr: {self.redirectstderr}")
-        print("stderr : " + self.stderr)
-        print("env : ")
+        result = ""
+        result += "Name : "  + self.name + '\n'
+        result += "Command : " + self.cmd + '\n'
+        result += "User : " + self.user + '\n'
+        result += "Number of proc " + str(self.numprocs) + '\n'
+        result += "Umask : " + str(self.umask) + '\n'
+        result += "Working Directory : " + self.workingdir + '\n'
+        result += "Autostart : " + str(self.autostart) + '\n'
+        result += "Autorestart : " + str(self.autorestart) + '\n'
+        result += "Exit codes : " + str(self.exitcodes) + '\n'
+        result += "Start retries : " + str(self.startretries) + '\n'
+        result += "Start time : " + str(self.starttime) + '\n'
+        result += "Stop signal : " + self.stopsignal + '\n'
+        result += "Stop time : " + str(self.stoptime) + '\n'
+        result += f"redirectstdout: {self.redirectstdout}" + '\n'
+        result += "stdout : " + self.stdout + '\n'
+        result += f"redirectstderr: {self.redirectstderr}" + '\n'
+        result += "stderr : " + self.stderr + '\n'
+        result += "env : " + '\n'
         for key, value in self.env.items():
-            print(" ",key , ": ", value)
-
+            result += " " + str(key) + ": " + str(value) + '\n'
+        send_result_command(connection, result)
 
     def set_status(self, new_status, connection=None, send_log=False):
         '''
@@ -219,6 +222,22 @@ class Job:
                 return
         self.set_status(PROCESS_STATUS.STOPPED.value, connection)
         send_result_command(connection, f"{self.name} {PROCESS_STATUS.STOPPED.value}")
+
+    def pause(self):
+        try:
+            self.process.send_signal(signal.SIGSTOP)
+            self.to_resume = True
+            self.set_status(PROCESS_STATUS.SUSPENDED.value)
+        except Exception as e:
+            return
+
+    def resume(self):
+        try:
+            self.process.send_signal(signal.SIGCONT)
+            self.to_resume = False
+            self.set_status(PROCESS_STATUS.RESUMED.value)
+        except Exception as e:
+            return
 
     def restart(self, connection=None):
         '''

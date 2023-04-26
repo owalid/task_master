@@ -1,8 +1,5 @@
-import argparse as ap
-import os
-import sys
-import subprocess
-import signal
+import argparse as ap 
+import os, sys, subprocess, signal, weakref
 from classes.Server import Server
 from argparse import RawTextHelpFormatter
 from utils.command import send_result_command
@@ -24,29 +21,29 @@ def handle_sighup(signum, frame, conf_path):
     if new_list_of_jobs == False:
         send_result_command(server.connection, ERRORS.CONF_FILE_LOADING_ERROR.value)
         return
-    hash_array_new_jobs = []
-    for new_job in new_list_of_jobs:
-        hash_array_new_jobs.append(new_job.hash)
+    hash_array_new_jobs = [job.hash for job in new_list_of_jobs]
     hash_array_old_jobs = []
+    added_job = []
     for old_job in server.jobs:
         if old_job.hash not in hash_array_new_jobs:
-            old_job.stop()
-            server.jobs.remove(old_job)
-        else:
-            hash_array_old_jobs.append(old_job.hash)
-    is_new_jobs_added  = False
-    for new_job in new_list_of_jobs:
-        if new_job.hash in hash_array_old_jobs:
             continue
-        else:
-            server.jobs.append(new_job.__copy__())
+        hash_array_old_jobs.append(old_job.hash)
+        old_job.pause()
+        added_job.append(old_job)
+    is_new_jobs_added  = False
+    for new_job_to_add in new_list_of_jobs:
+        if new_job_to_add.hash not in hash_array_old_jobs:
+            added_job.append(new_job_to_add)
             is_new_jobs_added = True
     if is_new_jobs_added:
+        server.jobs.clear()
+        server.jobs = added_job
         server.start_all_jobs()
-    del new_list_of_jobs
     if is_new_jobs_added:
         send_result_command(server.connection, "SIGHUP received, jobs started or not touched successfully.")
     else:
+        for job in server.jobs:
+            job.resume()
         send_result_command(server.connection, "SIGHUP received, but nothing changed.")
 
 def get_pname(pid):
@@ -133,7 +130,7 @@ if __name__ == "__main__":
     check_rights_and_user(jobs, taskmaster_options, accept_default=args.default)
     server = Server(jobs, event_listener_options)
 
-    # signal.signal(signal.SIGHUP, lambda signum, frame:handle_sighup(signum, frame, conf_path))
+    signal.signal(signal.SIGHUP, lambda signum, frame:handle_sighup(signum, frame, conf_path))
     signal.signal(signal.SIGQUIT, handle_sigquit)
 
     #! THIS CONDITION IS USED ONLY FOR TESTING PURPOSES

@@ -62,7 +62,7 @@ def display_help():
 =============================================
 quit      exit      stop     start    status
 restart   attach    detach   list     kill
-reload
+reload    print_conf
 =============================================''')
 if __name__ == "__main__":
     client = Client()
@@ -101,7 +101,13 @@ if __name__ == "__main__":
             if cmd_parsed == ALLOWED_COMMANDS_WITHOUT_PARAMS.RELOAD.value:
                     print("KILL")
                     pid = get_pid()
-                    os.kill(pid, signal.SIGHUP)
+                    print("pid " + str(pid))
+                    try:
+                        os.kill(pid, signal.SIGHUP)
+                    except Exception as e:
+                        print(e)
+                    if client.client_socket == None:
+                        client = Client()
                     print(client.receive())
                     continue
             if cmd_parsed == False: # invalid command
@@ -115,20 +121,20 @@ if __name__ == "__main__":
                 client = Client()
             if client.client_socket != None: # If connected send command to server
                 # todo: process arguments according to command and server
-                if cmd_parsed ==  ALLOWED_COMMANDS.ATTACH.value:
+                if cmd_parsed ==  ALLOWED_COMMANDS_WITH_PARAMS.ATTACH.value:
                     client.send(f"{cmd_parsed} {arguments}")
                     signal.signal(signal.SIGINT, signal_handler)
                     detachMode = False
                     print("Press Ctrl + c to quit attach mode")
                     while True:
                         data = client.receive()
-                        if (data is not None):
+                        if (data and data != '\n'):
                             print(data)
                         if detachMode == True:
                             break
-                    client.send(f"{ALLOWED_COMMANDS.DETACH.value} {arguments}")
+                    client.send(f"{ALLOWED_COMMANDS_WITH_PARAMS.DETACH.value} {arguments}")
                     print(client.receive())
-                elif cmd_parsed == ALLOWED_COMMANDS.RESTART.value:
+                elif cmd_parsed == ALLOWED_COMMANDS_WITH_PARAMS.RESTART.value:
                     client.send(f"{cmd_parsed} {arguments}")
                     print(client.receive())
                 else:
