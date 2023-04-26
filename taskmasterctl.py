@@ -99,9 +99,7 @@ if __name__ == "__main__":
                 print(client.receive())
                 continue
             if cmd_parsed == ALLOWED_COMMANDS_WITHOUT_PARAMS.RELOAD.value:
-                    print("KILL")
                     pid = get_pid()
-                    print("pid " + str(pid))
                     try:
                         os.kill(pid, signal.SIGHUP)
                     except Exception as e:

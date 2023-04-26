@@ -26,7 +26,6 @@ def check_types(key, value):
 def make_hash(job):
     values_string = ""
     for key in vars(job):
-        # print(key)
         if key != "name" and key not in ALLOWED_PROGRAM_ENTRIES:
             continue
         value = getattr(job, key)
