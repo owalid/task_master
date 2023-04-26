@@ -187,8 +187,10 @@ class Server:
         for job in self.jobs:
             job_state = job.get_state()
             if job.autostart == True and job_state != PROCESS_STATUS.STARTED.value \
-            and job_state != PROCESS_STATUS.STARTED.value and job_state != PROCESS_STATUS.RESTARTED.value:
+            and job_state != PROCESS_STATUS.RESTARTED.value and job.to_resume == False:
                 job.start()
+            if job.to_resume == True:
+                job.resume()
 
     def stop_all_jobs(self):
         '''

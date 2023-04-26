@@ -1,11 +1,13 @@
+import os
 from classes.Client import Client
+from taskmaster import get_pname
 from utils.command import parse_command
 from classes.ParsingEnum import ALLOWED_COMMANDS, ALLOWED_COMMANDS_WITH_PARAMS, ALLOWED_COMMANDS_WITHOUT_PARAMS, ERRORS
 import signal
 import time
 
 LISTED_JOBS = []
-
+PID_FILE = "/tmp/taskmaster.pid"
 def signal_handler(signal, frame):
     global detachMode
     detachMode = True
@@ -14,6 +16,21 @@ def clean_exit(client):
     client.close()
     print("Bye")
     exit(0)
+
+def get_pid():
+    if not os.path.exists(PID_FILE):
+        print(ERRORS.PID_FILE_NOT_FOUND.value)
+        exit(1)
+    with open(PID_FILE, "r") as f:
+        pid = f.read()
+    name = get_pname(int(pid))
+
+    # protect against killing other process
+    if not name.startswith("python3 taskmaster.py") and not name.startswith("python taskmaster.py") and not name.startswith("taskmaster.py"):
+        print(ERRORS.PID_ERROR.value)
+    return int(pid)
+
+
 
 def update_listed_jobs():
     global LISTED_JOBS
@@ -45,6 +62,7 @@ def display_help():
 =============================================
 quit      exit      stop     start    status
 restart   attach    detach   list     kill
+reload    print_conf
 =============================================''')
 if __name__ == "__main__":
     client = Client()
@@ -80,7 +98,16 @@ if __name__ == "__main__":
                 client.send(f"list")
                 print(client.receive())
                 continue
-
+            if cmd_parsed == ALLOWED_COMMANDS_WITHOUT_PARAMS.RELOAD.value:
+                    pid = get_pid()
+                    try:
+                        os.kill(pid, signal.SIGHUP)
+                    except Exception as e:
+                        print(e)
+                    if client.client_socket == None:
+                        client = Client()
+                    print(client.receive())
+                    continue
             if cmd_parsed == False: # invalid command
                 print(f"{ERRORS.UNKNOW_SYNTAX_ERROR.value}{cmd}")
                 continue
@@ -92,20 +119,20 @@ if __name__ == "__main__":
                 client = Client()
             if client.client_socket != None: # If connected send command to server
                 # todo: process arguments according to command and server
-                if cmd_parsed ==  ALLOWED_COMMANDS.ATTACH.value:
+                if cmd_parsed ==  ALLOWED_COMMANDS_WITH_PARAMS.ATTACH.value:
                     client.send(f"{cmd_parsed} {arguments}")
                     signal.signal(signal.SIGINT, signal_handler)
                     detachMode = False
                     print("Press Ctrl + c to quit attach mode")
                     while True:
                         data = client.receive()
-                        if (data is not None):
+                        if (data and data != '\n'):
                             print(data)
                         if detachMode == True:
                             break
-                    client.send(f"{ALLOWED_COMMANDS.DETACH.value} {arguments}")
+                    client.send(f"{ALLOWED_COMMANDS_WITH_PARAMS.DETACH.value} {arguments}")
                     print(client.receive())
-                elif cmd_parsed == ALLOWED_COMMANDS.RESTART.value:
+                elif cmd_parsed == ALLOWED_COMMANDS_WITH_PARAMS.RESTART.value:
                     client.send(f"{cmd_parsed} {arguments}")
                     print(client.receive())
                 else:

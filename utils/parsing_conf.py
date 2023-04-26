@@ -6,6 +6,7 @@ from classes.ParsingEnum import ALLOWED_CATEGORIES, ALLOWED_PROGRAM_ENTRIES, ALL
 from utils.validations import VALIDATION_DICT
 from classes.TaskmasterOptions import TaskmasterOptions
 from classes.EventManagerOptions import EventManagerOptions
+import hashlib
 
 def init_default_job(prg, values):
     have_env_in_conf = ALLOWED_PROGRAM_ENTRIES.ENV.value in values.keys()
@@ -20,6 +21,16 @@ def init_default_job(prg, values):
 def check_types(key, value):
     rule_fn = VALIDATION_DICT[key]['type_rule_fn']
     return rule_fn(value)
+
+
+def make_hash(job):
+    values_string = ""
+    for key in vars(job):
+        if key != "name" and key not in ALLOWED_PROGRAM_ENTRIES:
+            continue
+        value = getattr(job, key)
+        values_string += str(value)
+    job.hash = hashlib.sha256(str.encode(values_string)).hexdigest()
 
 def parse_event_listener_options_conf_file(conf_path):
     conf_file_loaded = None
@@ -114,6 +125,7 @@ def parse_job_conf_file(conf_path):
                 setattr(current_job, key, value)
             current_job.stderr = '' if current_job.redirectstderr == False else current_job.stderr
             current_job.stdout = '' if current_job.redirectstdout == False else current_job.stdout
+            make_hash(current_job)
             if current_job.numprocs > 1:
                 original_job = current_job.__copy__()
                 for i in range(current_job.numprocs):
