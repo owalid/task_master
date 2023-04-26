@@ -214,7 +214,7 @@ class Job:
             pid = self.process.pid
             try:
                 os.kill(pid, signal_value)
-            except ProcessLookupError:
+            except:
                 send_result_command(connection, f"Error: process {self.name} is not running")
                 return
         self.set_status(PROCESS_STATUS.STOPPED.value, connection)
