@@ -82,13 +82,9 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--conf", required=False, type=str, help='Path of your configuration file')
     parser.add_argument("-k", "--kill", required=False, action='store_true', default=False, help='Kill taskmaster')
     parser.add_argument("-df", "--default",  required=False, action='store_true', default=False, help='Use default value of all the questions asked by the program')
-
-    #! THIS OPTIONS IS USED ONLY FOR TESTING PURPOSES
     parser.add_argument("-d", "--deamonize", required=False, action='store_true', default=False, help='Deamonize')
-
     args = parser.parse_args()
 
-    print(args)
     if not args.conf and not args.kill:
         parser.print_help()
         exit(1)
@@ -136,7 +132,6 @@ if __name__ == "__main__":
     signal.signal(signal.SIGHUP, lambda signum, frame:handle_sighup(signum, frame, conf_path))
     signal.signal(signal.SIGQUIT, handle_sigquit)
 
-    #! THIS CONDITION IS USED ONLY FOR TESTING PURPOSES
     if args.deamonize:
         daemonize()
 

@@ -102,7 +102,6 @@ class Server:
                 self.close()
                 exit(0)
             elif command == "list":
-                print("list")
                 self.list_jobs()
                 return
             if job_name == "all" and command in ALLOWED_COMMANDS:
