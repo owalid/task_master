@@ -1,15 +1,15 @@
 programs:
   php:
-    cmd: "/usr/bin/php -S 0.0.0.0:4242"
+    cmd: "/usr/bin/php -S 0.0.0.0:4848"
     numprocs: 1
     umask: 022
     workingdir: /tmp
-    user: kibatche
+    user: chbadad
     autostart: true
     autorestart: unexpected
     exitcodes:
       - 0
-      - 2
+      - 18
     startretries: 3
     starttime: 15
     stoptime: 10

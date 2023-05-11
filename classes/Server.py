@@ -4,7 +4,7 @@ from classes.ParsingEnum import ALLOWED_COMMANDS, ERRORS, PROCESS_STATUS, RESTAR
 from utils.command import send_result_command
 
 SOCK_FILE = "/tmp/taskmaster.sock"
-SIZE_OF_RECEIVE = 1024
+SIZE_OF_RECEIVE = 2048
 
 class Server:
     # __instance is used to store the instance of the class
@@ -144,7 +144,7 @@ class Server:
                         break
                     for job in self.jobs:
                         if job.process:
-                            if job.process.poll() is not None and job.get_state() != PROCESS_STATUS.EXITED.value:
+                            if job.process.poll() is not None and job.get_state() != PROCESS_STATUS.EXITED.value and job.get_state() != PROCESS_STATUS.STOPPED.value:
                                 job.last_exit_code = job.process.returncode
                                 job.set_status(PROCESS_STATUS.EXITED.value)
                                 if (job.autorestart == True or job.autorestart == RESTART_VALUES.UNEXPECTED.value) and job.startretries > 0:

@@ -167,7 +167,7 @@ class Job:
             Start the job with subprocess.Popen, set the status and send the result to the client, and restart the job if it's failed
             return: None
         '''
-        if self.state == PROCESS_STATUS.STARTED.value and restart == False:
+        if (self.state == PROCESS_STATUS.STARTED.value or self.state == PROCESS_STATUS.DETACHED.value) and restart == False:
             return send_result_command(connection, f"{Fore.BLUE}{Style.BRIGHT}[STATUS]{Style.RESET_ALL} {self.name} is already running.\nPlease use restart command to restart it.\n")
         if direct_call == True:
             self.startretries = self.original_startretries
@@ -245,15 +245,11 @@ class Job:
             return: None
         '''
         self.startretries -= 1
-        if self.autorestart == False:
-            self.set_status(PROCESS_STATUS.EXITED.value, connection)
-        elif self.autorestart == RESTART_VALUES.UNEXPECTED.value:
+        self.stop()
+        if self.autorestart == RESTART_VALUES.UNEXPECTED.value and self.state == PROCESS_STATUS.EXITED.value:
             if self.last_exit_code not in self.exitcodes:
                 self.start(connection=connection, restart=True, direct_call=False)
-            else:
-                self.set_status(PROCESS_STATUS.EXITED.value, connection)
-        else:
-            self.start(connection=connection, restart=True, direct_call=False)
+        self.start(connection=connection, restart=True, direct_call=False)
 
     def attach(self, connection=None):
         '''
@@ -283,16 +279,14 @@ class Job:
                                     send_result_command(connection, datas.decode())
                                 else:
                                     datas = (self.stderrFileForAttachMode.readlines()[-20:])
-                                    for line in datas:
-                                        send_result_command(connection, line)
+                                    send_result_command(connection, '\n'.join(datas))
                             if fds == self.stdoutFileForAttachMode.fileno():
                                 if not self.stdout:
                                     datas = self.stdoutFileForAttachMode.readline()
                                     send_result_command(connection, datas.decode())
                                 else:
                                     datas = (self.stdoutFileForAttachMode.readlines()[-20:])
-                                    for line in datas:
-                                        send_result_command(connection, line)
+                                    send_result_command(connection, '\n'.join(datas))
             except OSError as e:
                 send_result_command(connection, f"{self.name} {PROCESS_STATUS.DETACHED.value}")
                 print(f'{ERRORS.FORK_ERROR.value}{e}')
