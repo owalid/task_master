@@ -15,7 +15,7 @@ class Client:
         if Client.__instance == None:
             Client()
         return Client.__instance
-    
+
     def __init__(self):
         if Client.__instance != None:
             return Client.__instance
@@ -63,7 +63,7 @@ class Client:
         result = ''
         while True:
             try:
-                data = self.client_socket.recv(1024)
+                data = self.client_socket.recv(2048)
                 if data != b'':
                     result += data.decode()
                 else:

@@ -1,4 +1,4 @@
-import argparse as ap 
+import argparse as ap
 import os, sys, subprocess, signal, weakref
 from classes.Server import Server
 from argparse import RawTextHelpFormatter
@@ -36,6 +36,9 @@ def handle_sighup(signum, frame, conf_path):
             added_job.append(new_job_to_add)
             is_new_jobs_added = True
     if is_new_jobs_added:
+        for old_job in server.jobs:
+            if old_job.hash not in hash_array_new_jobs:
+                old_job.stop()
         server.jobs.clear()
         server.jobs = added_job
         server.start_all_jobs()
@@ -136,7 +139,7 @@ if __name__ == "__main__":
     #! THIS CONDITION IS USED ONLY FOR TESTING PURPOSES
     if args.deamonize:
         daemonize()
-    
+
     # write pid of taskmaster in /tmp/taskmaster.pid
     if os.path.exists(PID_FILE):
         os.remove(PID_FILE)
