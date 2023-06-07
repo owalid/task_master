@@ -1,11 +1,14 @@
-# task_master
-
-
 <div align="center">
-<img width="450px" height="450px" src="https://github.com/owalid/task_master/assets/28403617/17f5466a-c5a5-43e9-8a6c-f8615e278edf#gh-light-mode-only">
-<img width="450px" height="450px" src="https://github.com/owalid/task_master/assets/28403617/c525087f-a5fd-48ca-ab7b-8f9b61000834#gh-dark-mode-only">
+  <img width="450px" height="450px" src="https://github.com/owalid/task_master/assets/28403617/17f5466a-c5a5-43e9-8a6c-f8615e278edf#gh-light-mode-only">
+  <img width="450px" height="450px" src="https://github.com/owalid/task_master/assets/28403617/c525087f-a5fd-48ca-ab7b-8f9b61000834#gh-dark-mode-only">
 </div>
 
+
+## Description
+
+Basic job control features are the suspending, resuming, or terminating of all processes in the job/process group; more advanced features can be performed by sending signals to the job. Job control is of particular interest in Unix due to its multiprocessing, and should be distinguished from job control generally, which is frequently applied to sequential execution (batch processing).
+
+Our job here was to make a fully-fledged job control daemon like supervisord or systemd.
 
 ## Installation
 
@@ -15,7 +18,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-Start the "server":
+Start the server:
 
 ```
 python taskmaster.py
@@ -29,7 +32,7 @@ optional arguments:
   -d, --deamonize       Deamonize
 ```
 
-Start the "client":
+Start the client:
 
 ```bash-session
 python taskmasterctl.py
@@ -37,9 +40,15 @@ python taskmasterctl.py
 
 ## Example
 
+Start the server:
+
 ```bash-session
 python3 taskmaster.py -c config.yaml
 ```
+
+You can find examples of configuration files in the [`config_file_example`](https://github.com/owalid/task_master/tree/main/config_file_example) folder.
+
+Start the client:
 
 ```bash-session
 python3 taksmasterctl.py
