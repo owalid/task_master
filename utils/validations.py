@@ -37,7 +37,7 @@ VALIDATION_DICT = {
         'type_rule_fn': lambda x: isinstance(x, int) and not isinstance(x, bool),
         'main_rules': [
             {
-                'rule_fn': lambda x: x > 1 or x < 10,
+                'rule_fn': lambda x: x > 1 and x < 10,
                 'msg_fn': lambda x: f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{x} for {ALLOWED_PROGRAM_ENTRIES.NUMPROCS.value}. Min: 1. Max: 10."
             }
         ]
@@ -46,7 +46,7 @@ VALIDATION_DICT = {
         'type_rule_fn': lambda x: isinstance(x, int) and not isinstance(x, bool),
         'main_rules': [
             {
-                'rule_fn': lambda x: x > 0 or x < 511,
+                'rule_fn': lambda x: x > 0 and x < 511,
                 'msg_fn': lambda x: f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{x} for {ALLOWED_PROGRAM_ENTRIES.UMASK.value}. Min: 1. Max: 511."
             }
         ]
@@ -98,7 +98,7 @@ VALIDATION_DICT = {
         'type_rule_fn': lambda x: isinstance(x, int) and not isinstance(x, bool),
         'main_rules': [
             {
-                'rule_fn': lambda x: x > 0 or x < 10,
+                'rule_fn': lambda x: x > 0 and x < 10,
                 'msg_fn': lambda x: f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{x} for {ALLOWED_PROGRAM_ENTRIES.NUMPROCS.value}. Min: 1. Max: 10."
             }
         ]
@@ -107,7 +107,7 @@ VALIDATION_DICT = {
         'type_rule_fn': lambda x: isinstance(x, int) and not isinstance(x, bool),
         'main_rules': [
             {
-                'rule_fn': lambda x: x > 0 or x < 60,
+                'rule_fn': lambda x: x > 0 and x < 60,
                 'msg_fn': lambda x: f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{x} for {ALLOWED_PROGRAM_ENTRIES.STARTTIME.value}. Min: 0. Max: 60."
             }
         ]
@@ -125,7 +125,7 @@ VALIDATION_DICT = {
         'type_rule_fn': lambda x: isinstance(x, int) and not isinstance(x, bool),
         'main_rules': [
             {
-                'rule_fn': lambda x: x > 0 or x < 60,
+                'rule_fn': lambda x: x > 0 and x < 60,
                 'msg_fn': lambda x: f"{ERRORS.CONF_FILE_BAD_VALUE_ERROR.value}{x} for {ALLOWED_PROGRAM_ENTRIES.STOPTIME.value}. Min: 0. Max: 60."
             }
         ]
